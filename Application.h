@@ -4,8 +4,9 @@ public:
 	Application(const Application& other) = delete;
 	Application() = default;
 	Application(HINSTANCE hInstance,LPCWSTR wcpWindowName);
+	Application(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW* pWindowProperties);
 	virtual ~Application() {};
-private:
+protected:
 	HWND m_hWnd{};
 	HINSTANCE m_hInstance{};
 	HACCEL m_hHaccelTable{};

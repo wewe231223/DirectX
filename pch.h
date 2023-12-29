@@ -18,3 +18,7 @@
 #include <memory>
 
 #include "resource.h"
+#include "Util.h"
+
+#define FRAMEBUFFER_WIDTH 1920
+#define FRAMEBUFFER_HEIGHT 1080

@@ -5,22 +5,28 @@ Application::Application(HINSTANCE hInstance,LPCWSTR wcpWindowName){
 	m_hInstance = hInstance;
     WCHAR ClassName[100]{};
     ::LoadStringW(m_hInstance, IDC_DIRECTX, ClassName, 100);
-	WNDCLASSEXW wcex{};
-    wcex.cbSize = sizeof(WNDCLASSEXW);
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = Application::Procedure;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DIRECTX));
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = NULL;
+    WNDCLASSEXW wcex = ::GetDefaultWindowProperties(m_hInstance);
     wcex.lpszClassName = ClassName;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.lpfnWndProc = Application::Procedure;
     ::RegisterClassExW(&wcex);
     m_hWnd = ::CreateWindowExW(0L, ClassName, wcpWindowName, WS_OVERLAPPEDWINDOW,
-        100, 100, 1920, 1080, 
+        100, 100, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 
+        nullptr, nullptr, m_hInstance, nullptr);
+    if (!m_hWnd) {
+        exit(::GetLastError());
+    }
+    m_hHaccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDC_DIRECTX));
+    ShowWindow(m_hWnd, SW_SHOW);
+    UpdateWindow(m_hWnd);
+}
+
+Application::Application(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW* pWindowProperties){
+    m_hInstance = hInstance;
+    WCHAR ClassName[100]{};
+    ::LoadStringW(m_hInstance, IDC_DIRECTX, ClassName, 100);
+    ::RegisterClassExW(pWindowProperties);
+    m_hWnd = ::CreateWindowExW(0L, ClassName, wcpWindowName, WS_OVERLAPPEDWINDOW,
+        100, 100, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT,
         nullptr, nullptr, m_hInstance, nullptr);
     if (!m_hWnd) {
         exit(::GetLastError());
@@ -78,7 +84,8 @@ void Application::Loop(){
                 ::DispatchMessage(&m_mMsg);
             }
             else {
-
+                Update(0.f);
+                Render();
             }
         }
     }

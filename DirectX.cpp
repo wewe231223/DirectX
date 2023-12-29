@@ -15,7 +15,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LPCWSTR WindowName = L"Application";
     DefaultApp = std::make_unique<Application>(hInstance,WindowName);
     DefaultApp->Loop();
-    return 5;
+    return 0;
 }
 
 
