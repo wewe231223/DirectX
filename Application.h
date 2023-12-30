@@ -19,3 +19,5 @@ public:
 	virtual void Render() {};
 };
 
+
+bool SetMainApplication(Application* app);

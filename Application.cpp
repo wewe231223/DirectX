@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Application.h"
+static Application* mApp = nullptr;
 
 Application::Application(HINSTANCE hInstance,LPCWSTR wcpWindowName){
 	m_hInstance = hInstance;
@@ -59,6 +60,7 @@ LRESULT Application::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
         // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+        
         EndPaint(hWnd, &ps);
     }
     break;
@@ -89,4 +91,10 @@ void Application::Loop(){
             }
         }
     }
+}
+
+bool SetMainApplication(Application* app){
+    if (mApp) return false;
+    mApp = app;
+    return true;
 }

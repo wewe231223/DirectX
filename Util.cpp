@@ -16,6 +16,4 @@ WNDCLASSEXW GetDefaultWindowProperties(HINSTANCE hInstance){
     wcex.lpszClassName = nullptr;
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
     return wcex;
-
-
 }

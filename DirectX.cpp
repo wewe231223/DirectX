@@ -14,6 +14,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow){
     LPCWSTR WindowName = L"Application";
     DefaultApp = std::make_unique<Application>(hInstance,WindowName);
+    SetMainApplication(DefaultApp.get());
     DefaultApp->Loop();
     return 0;
 }
