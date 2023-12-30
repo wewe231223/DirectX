@@ -4,7 +4,7 @@
 #include "Application.h"
 
 
-std::unique_ptr<Application> DefaultApp{nullptr};
+std::unique_ptr<DirectXApplication> DefaultApp{nullptr};
 
 
 
@@ -13,12 +13,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow){
     LPCWSTR WindowName = L"Application";
-    DefaultApp = std::make_unique<Application>(hInstance,WindowName);
-    SetMainApplication(DefaultApp.get());
+    DefaultApp = std::make_unique<DirectXApplication>(hInstance,WindowName);
+    ApplicationFunctions::SetMainApplication(DefaultApp.get());
     DefaultApp->Loop();
     return 0;
 }
-
 
 
 
