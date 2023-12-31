@@ -19,23 +19,28 @@
 // C++ 런타임 헤더 파일입니다.
 #include <memory>
 #include <string>
+#include <vector>
 
 
 // DirectX 런타임 헤더 파일입니다.
 #include <wrl.h>
-#include <comdef.h>
-#include <dxgi1_4.h>
 #include <d3d12.h>
+#include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
+#include <dinput.h>
+#include <comdef.h>
 
 // DirectX 라이브러리 링크 
-#pragma comment(lib,"d3dcompiler.lib")
-#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
+
 
 
 using Microsoft::WRL::ComPtr;

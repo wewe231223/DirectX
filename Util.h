@@ -22,3 +22,4 @@ public:
 }
 
 WNDCLASSEXW GetDefaultWindowProperties(HINSTANCE hInstance);
+#define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }

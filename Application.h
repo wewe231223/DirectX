@@ -49,7 +49,7 @@ private:
 	bool m_bResizing{ false };
 	bool m_b4xMsaaState{ false };
 
-	UINT n4xMsaaQuality{ 0 };
+	UINT m_n4xMsaaQuality{ 0 };
 
 	std::unique_ptr<Timer> m_timer{ nullptr };
 
@@ -75,11 +75,27 @@ private:
 
 	UINT m_nRenderTargetViewDescriptorSize{ 0 };
 	UINT m_nDepthStencilViewDescriptorSize{ 0 };
+	UINT m_nResourceBufferDecriptorSize{ 0 };
 
 	D3D_DRIVER_TYPE m_d3dDriverType{ D3D_DRIVER_TYPE_HARDWARE };
 	DXGI_FORMAT m_dxgiBackBufferFormat{ DXGI_FORMAT_R8G8B8A8_UNORM };
 	DXGI_FORMAT m_dxgiDepthStencilFormat{ DXGI_FORMAT_D24_UNORM_S8_UINT };
 
+	D3D_FEATURE_LEVEL m_d3dDirectXFeatureLevel{ D3D_FEATURE_LEVEL_11_0 };
+
+	int m_nClientWidth{ FRAMEBUFFER_WIDTH };
+	int m_nClientHeight{ FRAMEBUFFER_HEIGHT };
+private:
+	bool Initialize();
+	bool InitializeDirect3D();
+	void CreateCommandList();
+	void CreateSwapChain();
+	void CreateRenderTargetViewDescriptorHeap();
+	void CreateDepthStencilViewDescriptorHeap();
+	bool Resize();
+	
+
+	void LogAdapters();
 
 
 };
