@@ -1,5 +1,7 @@
 #include "pch.h"
+#include "Timer.h"
 #include "Application.h"
+
 static Application* mApp = nullptr;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Application::Application(HINSTANCE hInstance,LPCWSTR wcpWindowName){
@@ -42,7 +44,7 @@ LRESULT Application::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
-        // ∏ﬁ¥∫ º±≈√¿ª ±∏πÆ ∫–ºÆ«’¥œ¥Ÿ:
+        // Î©îÎâ¥ ÏÑ†ÌÉùÏùÑ Íµ¨Î¨∏ Î∂ÑÏÑùÌï©ÎãàÎã§:
         switch (wmId)
         {
         case IDM_ABOUT:
@@ -59,7 +61,7 @@ LRESULT Application::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        // TODO: ø©±‚ø° hdc∏¶ ªÁøÎ«œ¥¬ ±◊∏Æ±‚ ƒ⁄µÂ∏¶ √ﬂ∞°«’¥œ¥Ÿ...
+        // TODO: Ïó¨Í∏∞Ïóê hdcÎ•º ÏÇ¨Ïö©ÌïòÎäî Í∑∏Î¶¨Í∏∞ ÏΩîÎìúÎ•º Ï∂îÍ∞ÄÌï©ÎãàÎã§...
         
         EndPaint(hWnd, &ps);
     }
@@ -99,6 +101,10 @@ LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName): Application(hInstance, wcpWindowName) {
+    m_timer = std::make_unique<Timer>();
+}
+
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties){
 }
 
@@ -110,7 +116,7 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
-        // ∏ﬁ¥∫ º±≈√¿ª ±∏πÆ ∫–ºÆ«’¥œ¥Ÿ:
+        // Î©îÎâ¥ ÏÑ†ÌÉùÏùÑ Íµ¨Î¨∏ Î∂ÑÏÑùÌï©ÎãàÎã§:
         switch (wmId)
         {
         case IDM_ABOUT:
@@ -133,6 +139,7 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
 }
 
 void DirectXApplication::Loop(){
+    ThrowIfFailed(E_FAIL);
     while (true) {
         if (PeekMessage(&m_mMsg, NULL, 0, 0, PM_REMOVE)) {
             if (m_mMsg.message == WM_QUIT) break;

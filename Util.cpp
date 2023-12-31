@@ -17,3 +17,19 @@ WNDCLASSEXW GetDefaultWindowProperties(HINSTANCE hInstance){
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
     return wcex;
 }
+
+Exeption::Exeption(HRESULT hErrorCode, const std::wstring& wcsFuctionName, const std::string& csFileName, const int nLineNumber):
+    m_hErrorCode(hErrorCode), m_wsFunctionName(wcsFuctionName), m_sFileName(csFileName), m_nLineNumber(nLineNumber){
+}
+
+std::wstring Exeption::ToString() const{
+    _com_error err(m_hErrorCode);
+    std::wstring errmsg = err.ErrorMessage();
+    WCHAR buffer[512]{};
+    ::MultiByteToWideChar(CP_ACP, 0, m_sFileName.c_str(), -1, buffer, 512);
+    std::wstring wsFileName{buffer};
+
+
+    return m_wsFunctionName + L"\nFailed in : " + wsFileName + L"\nLine : " + std::to_wstring(m_nLineNumber) + L"\nError : " + errmsg;
+}
+

@@ -1,4 +1,5 @@
 #pragma once
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Application{
 public:
 	Application(const Application& other) = delete;
@@ -18,8 +19,8 @@ public:
 	virtual void Update(float fDeltaTime) {};
 	virtual void Render() {};
 public:
-	HINSTANCE GetHandleInstance();
-	HWND GetWindowHandle();
+	HINSTANCE GetHandleInstance() const { return m_hInstance; };
+	HWND GetWindowHandle() const { return m_hWnd; };
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace ApplicationFunctions {
@@ -27,11 +28,12 @@ namespace ApplicationFunctions {
 	LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Timer;
 class DirectXApplication :public Application {
 public:
 	DirectXApplication() = default;
 	DirectXApplication(const DirectXApplication& other) = delete;
-	DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName) : Application(hInstance, wcpWindowName) {};
+	DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName);
 	DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties);
 	virtual ~DirectXApplication();
 public:
@@ -48,6 +50,35 @@ private:
 	bool m_b4xMsaaState{ false };
 
 	UINT n4xMsaaQuality{ 0 };
+
+	std::unique_ptr<Timer> m_timer{ nullptr };
+
+	ComPtr<IDXGIFactory4> m_dxgiFactory{};
+	ComPtr<IDXGISwapChain> m_dxgiSwapChain{};
+	ComPtr<ID3D12Device> m_d3dDevice{};
+
+	ComPtr<ID3D12Fence> m_d3dFence{};
+	UINT64 m_nCurrentFence{ 0 };
+
+	ComPtr<ID3D12CommandQueue> m_d3dCommandQueue{};
+	ComPtr<ID3D12CommandAllocator> m_d3dCommandAllocator{};
+	ComPtr<ID3D12GraphicsCommandList> m_d3dCommandList{};
+
+	int m_nCurrentBackBuffer{ 0 };
+	ComPtr<ID3D12Resource> m_d3dSwapChainBuffer[SWAPCHAINBUFFERCOUNT]{};
+	ComPtr<ID3D12Resource> m_d3dDepthStencilBuffer{};
+	ComPtr<ID3D12DescriptorHeap> m_d3dRenderTargetViewHeap{};
+	ComPtr<ID3D12DescriptorHeap> m_d3dDepthStencilViewHeap{};
+
+	D3D12_VIEWPORT m_d3dScreenViewPort{};
+	D3D12_RECT m_d3dSissorRect{};
+
+	UINT m_nRenderTargetViewDescriptorSize{ 0 };
+	UINT m_nDepthStencilViewDescriptorSize{ 0 };
+
+	D3D_DRIVER_TYPE m_d3dDriverType{ D3D_DRIVER_TYPE_HARDWARE };
+	DXGI_FORMAT m_dxgiBackBufferFormat{ DXGI_FORMAT_R8G8B8A8_UNORM };
+	DXGI_FORMAT m_dxgiDepthStencilFormat{ DXGI_FORMAT_D24_UNORM_S8_UINT };
 
 
 

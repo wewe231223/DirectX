@@ -1,24 +1,49 @@
 #pragma once
-// header.h: Ç¥ÁØ ½Ã½ºÅÛ Æ÷ÇÔ ÆÄÀÏ
-// ¶Ç´Â ÇÁ·ÎÁ§Æ® Æ¯Á¤ Æ÷ÇÔ ÆÄÀÏÀÌ µé¾î ÀÖ´Â Æ÷ÇÔ ÆÄÀÏÀÔ´Ï´Ù.
+// header.h: í‘œì¤€ ì‹œìŠ¤í…œ í¬í•¨ íŒŒì¼
+// ë˜ëŠ” í”„ë¡œì íŠ¸ íŠ¹ì • í¬í•¨ íŒŒì¼ì´ ë“¤ì–´ ìˆëŠ” í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
 //
 
 #pragma once
 
 #include "targetver.h"
-#define WIN32_LEAN_AND_MEAN             // °ÅÀÇ »ç¿ëµÇÁö ¾Ê´Â ³»¿ëÀ» Windows Çì´õ¿¡¼­ Á¦¿ÜÇÕ´Ï´Ù.
-// Windows Çì´õ ÆÄÀÏ
+#define WIN32_LEAN_AND_MEAN             // ê±°ì˜ ì‚¬ìš©ë˜ì§€ ì•ŠëŠ” ë‚´ìš©ì„ Windows í—¤ë”ì—ì„œ ì œì™¸í•©ë‹ˆë‹¤.
+// Windows í—¤ë” íŒŒì¼
 #include <windows.h>
-// C ·±Å¸ÀÓ Çì´õ ÆÄÀÏÀÔ´Ï´Ù.
+// C ëŸ°íƒ€ì„ í—¤ë” íŒŒì¼ì…ë‹ˆë‹¤.
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
 
-#include <memory>
 
-#include "resource.h"
-#include "Util.h"
+// C++ ëŸ°íƒ€ì„ í—¤ë” íŒŒì¼ì…ë‹ˆë‹¤.
+#include <memory>
+#include <string>
+
+
+// DirectX ëŸ°íƒ€ì„ í—¤ë” íŒŒì¼ì…ë‹ˆë‹¤.
+#include <wrl.h>
+#include <comdef.h>
+#include <dxgi1_4.h>
+#include <d3d12.h>
+#include <D3Dcompiler.h>
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+#include <DirectXColors.h>
+#include <DirectXCollision.h>
+
+// DirectX ë¼ì´ë¸ŒëŸ¬ë¦¬ ë§í¬ 
+#pragma comment(lib,"d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
+
+
+using Microsoft::WRL::ComPtr;
 
 #define FRAMEBUFFER_WIDTH 1920
 #define FRAMEBUFFER_HEIGHT 1080
+#define SWAPCHAINBUFFERCOUNT 2
+#include "resource.h"
+#include "Util.h"
+
+
