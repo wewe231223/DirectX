@@ -25,6 +25,7 @@
 // DirectX 런타임 헤더 파일입니다.
 #include <wrl.h>
 #include <d3d12.h>
+#include "d3dx12.h"
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
@@ -32,7 +33,7 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <dinput.h>
-#include <comdef.h>
+
 
 // DirectX 라이브러리 링크 
 #pragma comment(lib, "d3dcompiler.lib")

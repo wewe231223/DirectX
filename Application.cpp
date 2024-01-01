@@ -208,9 +208,9 @@ bool DirectXApplication::InitializeDirect3D(){
 #endif //!defined(DEBUG) || defined(_DEBUG)
 
     CreateCommandList();
-    //CreateSwapChain();
-    //CreateRenderTargetViewDescriptorHeap();
-    //CreateDepthStencilViewDescriptorHeap();
+    CreateSwapChain();
+    CreateRenderTargetViewDescriptorHeap();
+    CreateDepthStencilViewDescriptorHeap();
 
 
     return true;
@@ -251,6 +251,7 @@ void DirectXApplication::CreateSwapChain(){
 
 void DirectXApplication::CreateRenderTargetViewDescriptorHeap(){
     D3D12_DESCRIPTOR_HEAP_DESC RenderTargetViewDesc{};
+    RenderTargetViewDesc.NumDescriptors = SWAPCHAINBUFFERCOUNT;
     RenderTargetViewDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     RenderTargetViewDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     RenderTargetViewDesc.NodeMask = 0;
@@ -259,7 +260,8 @@ void DirectXApplication::CreateRenderTargetViewDescriptorHeap(){
 
 void DirectXApplication::CreateDepthStencilViewDescriptorHeap(){
     D3D12_DESCRIPTOR_HEAP_DESC DepthStencilViewDescriptorHeap{};
-    DepthStencilViewDescriptorHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    DepthStencilViewDescriptorHeap.NumDescriptors = 1;
+    DepthStencilViewDescriptorHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     DepthStencilViewDescriptorHeap.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     DepthStencilViewDescriptorHeap.NodeMask = 0;
     ThrowIfFailed(m_d3dDevice->CreateDescriptorHeap(&DepthStencilViewDescriptorHeap, IID_PPV_ARGS(m_d3dDepthStencilViewHeap.GetAddressOf())));
@@ -267,7 +269,86 @@ void DirectXApplication::CreateDepthStencilViewDescriptorHeap(){
 
 
 bool DirectXApplication::Resize(){
-    return false;
+    FlushCommandQueue();
+
+    ThrowIfFailed(m_d3dCommandList->Reset(m_d3dCommandAllocator.Get(), nullptr));
+    for (UINT i = 0; i < SWAPCHAINBUFFERCOUNT; ++i) {
+        m_d3dSwapChainBuffer[i].Reset();
+    }
+    m_d3dDepthStencilBuffer.Reset();
+
+    ThrowIfFailed(m_dxgiSwapChain->ResizeBuffers(SWAPCHAINBUFFERCOUNT, m_nClientWidth, m_nClientHeight, m_dxgiBackBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+
+    m_nCurrentBackBuffer = 0;
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE RenderTargetViewHeapHandle( m_d3dRenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart() );
+    for (UINT i = 0; i < SWAPCHAINBUFFERCOUNT; ++i) {
+        ThrowIfFailed(m_dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_d3dSwapChainBuffer[i])));
+        m_d3dDevice->CreateRenderTargetView(m_d3dSwapChainBuffer[i].Get(), nullptr, RenderTargetViewHeapHandle);
+        RenderTargetViewHeapHandle.Offset(1, m_nRenderTargetViewDescriptorSize);
+    }
+    
+    D3D12_RESOURCE_DESC DepthStencilDesc;
+    DepthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    DepthStencilDesc.Alignment = 0;
+    DepthStencilDesc.Width = m_nClientWidth;
+    DepthStencilDesc.Height = m_nClientHeight;
+    DepthStencilDesc.DepthOrArraySize = 1;
+    DepthStencilDesc.MipLevels = 1;
+    DepthStencilDesc.Format = m_dxgiDepthStencilFormat;
+    DepthStencilDesc.SampleDesc.Count = m_b4xMsaaState ? 4 : 1;
+    DepthStencilDesc.SampleDesc.Quality = m_b4xMsaaState ? (m_n4xMsaaQuality - 1) : 0;
+    DepthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    D3D12_CLEAR_VALUE ClearOption{};
+    ClearOption.Format = m_dxgiDepthStencilFormat;
+    ClearOption.DepthStencil.Depth = 1.f;
+    ClearOption.DepthStencil.Stencil = 0;
+
+    CD3DX12_HEAP_PROPERTIES HeapProperties{ D3D12_HEAP_TYPE_DEFAULT };
+    ThrowIfFailed(
+        m_d3dDevice->CreateCommittedResource(
+            &HeapProperties,
+            D3D12_HEAP_FLAG_NONE,
+            &DepthStencilDesc, 
+            D3D12_RESOURCE_STATE_COMMON, 
+            &ClearOption,
+            IID_PPV_ARGS(m_d3dDepthStencilBuffer.GetAddressOf()))
+    );
+
+    m_d3dDevice->CreateDepthStencilView(m_d3dDepthStencilBuffer.Get(), nullptr, m_d3dDepthStencilViewHeap->GetCPUDescriptorHandleForHeapStart());
+
+    CD3DX12_RESOURCE_BARRIER ResourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    m_d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
+
+    ThrowIfFailed(m_d3dCommandList->Close());
+
+    FlushCommandQueue();
+
+    m_d3dScreenViewPort.TopLeftX = 0;
+    m_d3dScreenViewPort.TopLeftY = 0;
+    m_d3dScreenViewPort.Width = static_cast<float>(m_nClientWidth);
+    m_d3dScreenViewPort.Height = static_cast<float>(m_nClientHeight);
+    m_d3dScreenViewPort.MaxDepth = 0.f;
+    m_d3dScreenViewPort.MinDepth = 1.f;
+
+    m_d3dSissorRect = D3D12_RECT{ 0,0,m_nClientWidth,m_nClientHeight };
+
+
+    return true;
+}
+
+void DirectXApplication::FlushCommandQueue(){
+    m_nCurrentFence++;
+    ThrowIfFailed(m_d3dCommandQueue->Signal(m_d3dFence.Get(), m_nCurrentFence));
+
+    if (m_d3dFence->GetCompletedValue() < m_nCurrentFence) {
+        HANDLE EventHandle = CreateEventExW(nullptr, NULL, NULL, EVENT_ALL_ACCESS);
+        ThrowIfFailed(m_d3dFence->SetEventOnCompletion(m_nCurrentFence, EventHandle));
+        ::WaitForSingleObject(EventHandle, INFINITE);
+        ::CloseHandle(EventHandle);
+    }
 }
 
 void DirectXApplication::LogAdapters(){

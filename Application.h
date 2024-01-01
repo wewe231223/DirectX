@@ -93,7 +93,8 @@ private:
 	void CreateRenderTargetViewDescriptorHeap();
 	void CreateDepthStencilViewDescriptorHeap();
 	bool Resize();
-	
+	void FlushCommandQueue();
+
 
 	void LogAdapters();
 

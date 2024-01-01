@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Util.h"
+#include <comdef.h>
+
 
 WNDCLASSEXW GetDefaultWindowProperties(HINSTANCE hInstance){
     WNDCLASSEXW wcex{};
@@ -25,7 +27,7 @@ Exeption::Exeption(HRESULT hErrorCode, const std::wstring& wcsFuctionName, const
 std::wstring Exeption::ToString() const{
     _com_error err(m_hErrorCode);
     std::wstring errmsg = err.ErrorMessage();
-    WCHAR buffer[512]{};
+    WCHAR buffer[512];
     ::MultiByteToWideChar(CP_ACP, 0, m_sFileName.c_str(), -1, buffer, 512);
     std::wstring wsFileName{buffer};
 

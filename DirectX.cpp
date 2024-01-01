@@ -13,9 +13,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow){
     LPCWSTR WindowName = L"Application";
-    DefaultApp = std::make_unique<DirectXApplication>(hInstance,WindowName);
-    ApplicationFunctions::SetMainApplication(DefaultApp.get());
     try {
+        DefaultApp = std::make_unique<DirectXApplication>(hInstance,WindowName);
+        ApplicationFunctions::SetMainApplication(DefaultApp.get());
         DefaultApp->Loop();
     }
     catch (Exeption& e) {

@@ -17,7 +17,7 @@ public:
 };
 #define ThrowIfFailed(hr){											\
 	HRESULT hr_ = (hr);												\
-	if(FAILED(hr)){ throw Exeption(hr_,L#hr,__FILE__,__LINE__);}	\
+	if(FAILED(hr_)){ throw Exeption(hr_,L#hr,__FILE__,__LINE__);}	\
 																	\
 }
 
