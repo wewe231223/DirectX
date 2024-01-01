@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Timer.h"
+#include "Input.h"
 #include "Application.h"
+
 
 static Application* mApp = nullptr;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +107,7 @@ DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowNam
     m_timer = std::make_unique<Timer>();
     m_timer->Reset();
     m_timer->Start();
+    INPUT->Init(m_hWnd,m_hInstance);
     Initialize();
 }
 
@@ -112,24 +115,13 @@ DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowNam
 }
 
 DirectXApplication::~DirectXApplication(){
+    if (m_d3dDevice != nullptr) {
+        FlushCommandQueue();
+    }
 }
 
 LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     switch (message) {
-    case WM_COMMAND:
-    {
-        int wmId = LOWORD(wParam);
-        // 메뉴 선택을 구문 분석합니다:
-        switch (wmId)
-        {
-        case IDM_EXIT:
-            DestroyWindow(hWnd);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
-    }
-    break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -141,13 +133,10 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
 
 void DirectXApplication::Loop(){
 //   ThrowIfFailed(E_FAIL);
-    while (true) {
-        if (PeekMessage(&m_mMsg, 0, 0, 0, PM_REMOVE)) {
-            if (m_mMsg.message == WM_QUIT) break;
-            if (!::TranslateAccelerator(m_mMsg.hwnd, m_hHaccelTable, &m_mMsg)) {
-                ::TranslateMessage(&m_mMsg);
-                ::DispatchMessage(&m_mMsg);
-            }
+    while (m_mMsg.message != WM_QUIT) {
+        if (::PeekMessage(&m_mMsg, 0, 0, 0, PM_REMOVE)) {
+            ::TranslateMessage(&m_mMsg);
+            ::DispatchMessage(&m_mMsg);            
         }
         else {
             Update(0.f);
@@ -158,7 +147,8 @@ void DirectXApplication::Loop(){
 
 void DirectXApplication::Update(float fDeltaTime){
     m_timer->Update();
-    ::SetWindowText(m_hWnd, m_timer->GetFpsString().c_str());
+    m_timer->SetFPSWindowTitle(m_hWnd);
+    INPUT->Update();
 }
 
 void DirectXApplication::Render(){
