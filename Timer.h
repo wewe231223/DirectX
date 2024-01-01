@@ -17,7 +17,6 @@ private:
 	float m_fFpsTimeElapsed{ 0.f };
 	int m_nFrameCount{ 0 };
 
-	std::wstring m_wsWindowTextBuffer{L"FPS : "};
 public:
 	float TimeElapsed() const;
 	float DeltaTime() const;
@@ -27,7 +26,7 @@ public:
 	void Stop();
 	void Update();
 
-	std::wstring GetFpsString();
+	void SetFPSWindowTitle(HWND hWnd);
 
 };
 

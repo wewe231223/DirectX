@@ -70,23 +70,20 @@ void Timer::Update(){
 	}
 }
 
-std::wstring Timer::GetFpsString(){
+void Timer::SetFPSWindowTitle(HWND hWnd){
 
 	m_nFrameCount++;
 
 	if (TimeElapsed() - m_fFpsTimeElapsed >= 1.f) {
 		float fps = (float)m_nFrameCount;
-		float msPerFrame = 1000.f / fps;
 
 		std::wstring FpsStr = std::to_wstring(fps);
-		std::wstring msPerFrameStr = std::to_wstring(msPerFrame);
 
-		m_wsWindowTextBuffer = std::wstring{ L"FPS : " + FpsStr + L"      Ms/Frame : " + msPerFrameStr };
+		FpsStr = L"FPS : " + FpsStr;
 
 		m_nFrameCount = 0;
 		m_fFpsTimeElapsed += 1.f;
+
+		::SetWindowText(hWnd, FpsStr.c_str());
 	}
-
-
-	return m_wsWindowTextBuffer;
 }
