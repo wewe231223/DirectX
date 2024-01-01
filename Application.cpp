@@ -103,6 +103,8 @@ LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, 
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName): Application(hInstance, wcpWindowName) {
     m_timer = std::make_unique<Timer>();
+    m_timer->Reset();
+    m_timer->Start();
     Initialize();
 }
 
@@ -120,8 +122,6 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         // 메뉴 선택을 구문 분석합니다:
         switch (wmId)
         {
-        case IDM_ABOUT:
-            break;
         case IDM_EXIT:
             DestroyWindow(hWnd);
             break;
@@ -142,21 +142,23 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
 void DirectXApplication::Loop(){
 //   ThrowIfFailed(E_FAIL);
     while (true) {
-        if (PeekMessage(&m_mMsg, NULL, 0, 0, PM_REMOVE)) {
+        if (PeekMessage(&m_mMsg, 0, 0, 0, PM_REMOVE)) {
             if (m_mMsg.message == WM_QUIT) break;
             if (!::TranslateAccelerator(m_mMsg.hwnd, m_hHaccelTable, &m_mMsg)) {
                 ::TranslateMessage(&m_mMsg);
                 ::DispatchMessage(&m_mMsg);
             }
-            else {
-                Update(0.f);
-                Render();
-            }
+        }
+        else {
+            Update(0.f);
+            Render();
         }
     }
 }
 
 void DirectXApplication::Update(float fDeltaTime){
+    m_timer->Update();
+    ::SetWindowText(m_hWnd, m_timer->GetFpsString().c_str());
 }
 
 void DirectXApplication::Render(){

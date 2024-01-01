@@ -4,7 +4,7 @@ public:
 	Timer();
 private:
 	float m_fSecondsPerCount{};
-	float m_fDeltaTime{};
+	float m_fDeltaTime{ -1.f };
 
 	INT64 m_nBaseTime{};
 	INT64 m_nPausedTime{};
@@ -12,7 +12,12 @@ private:
 	INT64 m_nPrevTime{};
 	INT64 m_nCurrentTime{};
 
-	bool m_bStoped{false};
+	bool m_bStopped{false};
+
+	float m_fFpsTimeElapsed{ 0.f };
+	int m_nFrameCount{ 0 };
+
+	std::wstring m_wsWindowTextBuffer{L"FPS : "};
 public:
 	float TimeElapsed() const;
 	float DeltaTime() const;
@@ -22,6 +27,7 @@ public:
 	void Stop();
 	void Update();
 
+	std::wstring GetFpsString();
 
 };
 
