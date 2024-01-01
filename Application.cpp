@@ -119,9 +119,81 @@ DirectXApplication::~DirectXApplication(){
         FlushCommandQueue();
     }
 }
-
+// 프로시저
 LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     switch (message) {
+    case WM_ACTIVATE:
+        if (LOWORD(wParam) == WA_INACTIVE) {
+            m_bPaused = true;
+            m_timer->Stop();
+        }
+        else {
+        
+            m_bPaused = false;
+            m_timer->Start();
+        }
+        break;
+    case WM_SIZE:
+        m_nClientWidth = LOWORD(lParam);
+        m_nClientHeight = HIWORD(lParam);
+
+        if (m_d3dDevice) {
+            switch(wParam){
+            case SIZE_MINIMIZED:
+                m_bPaused = true;
+                m_bMinimized = true;
+                m_bMaximized = true;
+                break;
+            case SIZE_MAXIMIZED:
+                m_bPaused = false;
+                m_bMinimized = false;
+                m_bMaximized = true;
+                Resize();
+                break;
+            case SIZE_RESTORED:
+                if (m_bMinimized) {
+                    m_bPaused = false;
+                    m_bMinimized = false;
+                    Resize();
+                }
+                else if (m_bMaximized) {
+                    m_bPaused = false;
+                    m_bMaximized = false;
+                    Resize();
+                }
+                else if (m_bResizing) {
+                    // 사이즈 변경 중에는 일단 Resize() 를 호출하지 않기로 한다
+                }
+                else {
+                    Resize();
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case WM_ENTERSIZEMOVE:
+        m_bPaused = true;
+        m_bResizing = true;
+        m_timer->Stop();
+        break;
+    case WM_EXITSIZEMOVE:
+        m_bPaused = false;
+        m_bResizing = false;
+        m_timer->Start();
+        // 사이즈 변경이 끝나면 버퍼를 조정 
+        Resize();
+        break;
+    case WM_MENUCHAR:
+        // Accel Handle 을 사용하지 않으므로 이와 같은 입력에 반응하지 않도록 한다 
+        return MAKELRESULT(0, MNC_CLOSE);
+     
+    case WM_GETMINMAXINFO:
+        //윈도우  최소크기 지정 
+        ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
+        ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
