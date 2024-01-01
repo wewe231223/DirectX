@@ -7,6 +7,10 @@
 
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
+#define FRAMEBUFFER_WIDTH 1920
+#define FRAMEBUFFER_HEIGHT 1080
+#define SWAPCHAINBUFFERCOUNT 2
+#define DIRECTINPUT_VERSION 0x0800
 // Windows 헤더 파일
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
@@ -46,9 +50,6 @@
 
 using Microsoft::WRL::ComPtr;
 
-#define FRAMEBUFFER_WIDTH 1920
-#define FRAMEBUFFER_HEIGHT 1080
-#define SWAPCHAINBUFFERCOUNT 2
 #include "resource.h"
 #include "Util.h"
 
