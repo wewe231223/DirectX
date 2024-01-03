@@ -2,7 +2,6 @@
 #include "Input.h"
 Input* Input::m_instance{ nullptr };
 
-
 Input::Input() {
 }
 
