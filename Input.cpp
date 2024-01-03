@@ -7,28 +7,7 @@ Input::Input() {
 }
 
 Input::~Input(){
-	if (m_keyboardState) delete[] m_keyboardState;
-	m_keyboardState = nullptr;
 
-	if(m_mouseState) delete[] m_mouseState;
-	m_mouseState = nullptr;
-	
-	if (m_pmouseDevice) {
-		m_pmouseDevice->Unacquire();
-		m_pmouseDevice->Release();
-		m_pmouseDevice = NULL;
-	}
-
-	if (m_pkeyDevice) {
-		m_pkeyDevice->Unacquire();
-		m_pkeyDevice->Release();
-		m_pkeyDevice = NULL;
-	}
-
-	if (m_pdirectInput) {
-		m_pdirectInput->Release();
-		m_pdirectInput = NULL;
-	}
 }
 
 /// <summary>
@@ -149,5 +128,31 @@ void Input::Update() {
 	m_nDeltaMouseX = Mousestate.lX;
 	m_nDeltaMouseY = Mousestate.lY;
 
+}
+
+void Input::Terminate(){
+	if (m_keyboardState) delete[] m_keyboardState;
+	m_keyboardState = nullptr;
+
+	if (m_mouseState) delete[] m_mouseState;
+	m_mouseState = nullptr;
+
+	if (m_pmouseDevice) {
+		m_pmouseDevice->Unacquire();
+		m_pmouseDevice->Release();
+		m_pmouseDevice = NULL;
+	}
+
+	if (m_pkeyDevice) {
+		m_pkeyDevice->Unacquire();
+		m_pkeyDevice->Release();
+		m_pkeyDevice = NULL;
+	}
+
+	if (m_pdirectInput) {
+		m_pdirectInput->Release();
+		m_pdirectInput = NULL;
+	}
+	delete Input::GetInstance();
 }
 

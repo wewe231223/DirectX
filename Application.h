@@ -29,6 +29,8 @@ namespace ApplicationFunctions {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Timer;
+class Scene;
+
 class DirectXApplication :public Application {
 public:
 	DirectXApplication() = default;
@@ -85,6 +87,8 @@ private:
 
 	int m_nClientWidth{ FRAMEBUFFER_WIDTH };
 	int m_nClientHeight{ FRAMEBUFFER_HEIGHT };
+
+	std::unique_ptr<Scene> m_pScene{ nullptr };
 private:
 	bool Initialize();
 	bool InitializeDirect3D();
@@ -97,6 +101,10 @@ private:
 
 
 	void LogAdapters();
+
+	ID3D12Resource* GetCurrentBackBuffer() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
 
 
 };

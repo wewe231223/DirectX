@@ -102,6 +102,7 @@ LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, 
     return mApp->Procedure(hWnd,message,wParam,lParam);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include "Scene.h"
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName): Application(hInstance, wcpWindowName) {
     m_timer = std::make_unique<Timer>();
@@ -109,6 +110,8 @@ DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowNam
     m_timer->Start();
     INPUT->Init(m_hWnd,m_hInstance);
     Initialize();
+    m_pScene = std::make_unique<Scene>();
+    m_pScene->Initialize(m_d3dDevice, m_d3dCommandList);
 }
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties){
@@ -215,6 +218,7 @@ void DirectXApplication::Loop(){
             Render();
         }
     }
+    return INPUT->Terminate();
 }
 
 void DirectXApplication::Update(float fDeltaTime){
@@ -224,6 +228,37 @@ void DirectXApplication::Update(float fDeltaTime){
 }
 
 void DirectXApplication::Render(){
+    ThrowIfFailed(m_d3dCommandAllocator->Reset());
+    ThrowIfFailed(m_d3dCommandList->Reset(m_d3dCommandAllocator.Get(), m_pScene->GetPipeLineStateObject().Get()));
+    m_d3dCommandList->RSSetViewports(1, &m_d3dScreenViewPort);
+    m_d3dCommandList->RSSetScissorRects(1, &m_d3dSissorRect);
+
+    CD3DX12_RESOURCE_BARRIER ResourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dSwapChainBuffer[m_nCurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    m_d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
+    // 백 버퍼를 LightSteelBlue 색으로 초기화
+    D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView = GetCurrentBackBufferView();
+    D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView = GetDepthStencilView();
+    m_d3dCommandList->ClearRenderTargetView(CurrentBackBufferView, DirectX::Colors::LightSteelBlue, 0, nullptr);
+    m_d3dCommandList->ClearDepthStencilView(DepthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+
+    CurrentBackBufferView = GetCurrentBackBufferView();
+    DepthStencilView = GetDepthStencilView();
+    m_d3dCommandList->OMSetRenderTargets(1, &CurrentBackBufferView, true, &DepthStencilView);
+
+    // Scene 의 그리기 연산 
+
+    ResourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dSwapChainBuffer[m_nCurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    m_d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
+
+    ThrowIfFailed(m_d3dCommandList->Close());
+    ID3D12CommandList* CommandLists[] = { m_d3dCommandList.Get() };
+    m_d3dCommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
+
+    ThrowIfFailed(m_dxgiSwapChain->Present(0,0));
+
+    m_nCurrentBackBuffer = (m_nCurrentBackBuffer + 1) % SWAPCHAINBUFFERCOUNT;
+    FlushCommandQueue();
+    
 }
 
 bool DirectXApplication::Initialize(){
@@ -474,4 +509,20 @@ void DirectXApplication::LogAdapters(){
         ReleaseCom(AdapterList[k]);
     }
 
+}
+
+ID3D12Resource* DirectXApplication::GetCurrentBackBuffer() const {
+    return m_d3dSwapChainBuffer[m_nCurrentBackBuffer].Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXApplication::GetCurrentBackBufferView() const {
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+    m_d3dRenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart(),
+        m_nCurrentBackBuffer,
+        m_nRenderTargetViewDescriptorSize
+    );
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXApplication::GetDepthStencilView() const {
+    return m_d3dDepthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
 }

@@ -61,6 +61,7 @@ public:
 public:
 	void Init(HWND hWnd,HINSTANCE Instance);
 	void Update();
+	void Terminate();
 
 	bool m_notfired = true;
 };
