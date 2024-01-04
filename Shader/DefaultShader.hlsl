@@ -1,5 +1,8 @@
 
-
+cbuffer cbMatrix : register(b0)
+{
+	
+}
 
 
 

@@ -50,6 +50,14 @@
 
 using Microsoft::WRL::ComPtr;
 
+struct _tagVertex {
+	DirectX::XMFLOAT3 Position{};	// offset = 0 byte 
+	DirectX::XMFLOAT3 Normal{};		// offset = 12 byte
+	DirectX::XMFLOAT2 Tex{};		// offset = 24 byte 
+};
+
+using Vertex = _tagVertex;
+
 #include "resource.h"
 #include "Util.h"
 
