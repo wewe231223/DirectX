@@ -35,3 +35,30 @@ constexpr UINT CalcConstantBufferByteSize(UINT Byte) {
 	*/
 	return (Byte + 0xff) & ~0xff;
 }
+
+/// <summary>
+/// 정보( 정점 등 ) 을 실제로 담고 있는 기본 버퍼를 생성한다 
+/// </summary>
+/// <param name="d3dDevice"> : 프로그램의 Device</param>
+/// <param name="d3dCommandList"> : 프로그램의 CommandList</param>
+/// <param name="Data"> : 정점 정보 포인터</param>
+/// <param name="nByteSize"> : 정점 정보의 크기</param>
+/// <param name="d3dpUploadBuffer"> : 업로드 버퍼( 정점 버퍼의 경우 GPU에 업로드하는 업로드 버퍼, 실제 정보를 담는 기본 버퍼 두 가지가 있어야 한다 ) </param>
+/// <returns></returns>
+ComPtr<ID3D12Resource> CreateDefaultBuffer(
+	ID3D12Device* d3dDevice, 
+	ID3D12GraphicsCommandList* d3dCommandList,
+	const void* Data, 
+	UINT64 nByteSize, 
+	ComPtr<ID3D12Resource>& d3dpUploadBuffer);
+
+constexpr DirectX::XMFLOAT4X4 Identity = {
+	1.f,0.f,0.f,0.f,
+	0.f,1.f,0.f,0.f,
+	0.f,0.f,1.f,0.f,
+	0.f,0.f,0.f,1.f
+};
+
+ComPtr<ID3DBlob> CompileShader(const std::wstring& wcsFileName, const D3D_SHADER_MACRO* d3dDefines, const std::string& csEntryPoint, const std::string& csTarget);
+
+D3D12_SHADER_BYTECODE GetShaderByteCode(ComPtr<ID3DBlob> d3dShaderBlob);

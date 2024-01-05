@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <array>
 
 
 // DirectX 런타임 헤더 파일입니다.
@@ -54,9 +55,12 @@ struct _tagVertex {
 	DirectX::XMFLOAT3 Position{};	// offset = 0 byte 
 	DirectX::XMFLOAT3 Normal{};		// offset = 12 byte
 	DirectX::XMFLOAT2 Tex{};		// offset = 24 byte 
-};
+	DirectX::XMFLOAT4 Color{};		// offset = 32 byte 
+};									// total 48 byte 
 
 using Vertex = _tagVertex;
+
+
 
 #include "resource.h"
 #include "Util.h"

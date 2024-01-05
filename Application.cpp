@@ -112,6 +112,7 @@ DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowNam
     Initialize();
     m_pScene = std::make_unique<Scene>();
     m_pScene->Initialize(m_d3dDevice, m_d3dCommandList);
+    m_pScene->Set4xMsaaState(m_b4xMsaaState, m_n4xMsaaQuality);
 }
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties){
