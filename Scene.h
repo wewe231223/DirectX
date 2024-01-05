@@ -23,6 +23,10 @@ private:
 	
 	ComPtr<ID3D12Resource> m_d3dConstantBuffer{ nullptr };
 
+	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{};
+	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{};
+	ObjectConstants TestConstant{};
+
 	bool m_b4xMsaa{ false };
 	UINT m_n4xMsaaQuality{ 0 };
 private:

@@ -110,9 +110,15 @@ DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowNam
     m_timer->Start();
     INPUT->Init(m_hWnd,m_hInstance);
     Initialize();
+    ThrowIfFailed(m_d3dCommandList->Reset(m_d3dCommandAllocator.Get(), nullptr));
     m_pScene = std::make_unique<Scene>();
     m_pScene->Initialize(m_d3dDevice, m_d3dCommandList);
     m_pScene->Set4xMsaaState(m_b4xMsaaState, m_n4xMsaaQuality);
+
+    ThrowIfFailed(m_d3dCommandList->Close());
+    ID3D12CommandList* CommandLists[] = { m_d3dCommandList.Get() };
+    m_d3dCommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
+    FlushCommandQueue();
 }
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties){
@@ -247,6 +253,7 @@ void DirectXApplication::Render(){
     m_d3dCommandList->OMSetRenderTargets(1, &CurrentBackBufferView, true, &DepthStencilView);
 
     // Scene 의 그리기 연산 
+    m_pScene->Render();
 
     ResourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dSwapChainBuffer[m_nCurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     m_d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
@@ -423,6 +430,8 @@ bool DirectXApplication::Resize(){
     m_d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
 
     ThrowIfFailed(m_d3dCommandList->Close());
+    ID3D12CommandList* CommandLists[] = { m_d3dCommandList.Get() };
+    m_d3dCommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
 
     FlushCommandQueue();
 

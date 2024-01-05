@@ -16,25 +16,26 @@ struct VertexIN
 
 struct VertexOUT
 {
-    float3 Pos : POSITION;
+    float4 PosL : SV_POSITION;
     float3 Normal : NORMAL;
     float2 TexCoord : TEXCOORD;
     float4 Color : COLOR;
 };
 
-VertexOUT VertexShader(VertexIN Vin)
+VertexOUT VS(VertexIN Vin)
 {
     VertexOUT Vout;
     
     
-    Vout.Pos = mul(float4(Vin.Pos, 1.f), ObjectConstant.WorldViewProj);
-    Vout.Color = Vin.Color;
+    Vout.PosL = mul(float4(Vin.Pos, 1.0f), ObjectConstant.WorldViewProj);
     Vout.Normal = Vin.Normal;
     Vout.TexCoord = Vin.TexCoord;
+    Vout.Color = Vin.Color;
+    
     return Vout;
 }
 
-float4 PixelShader(VertexOUT Vout)
+float4 PS(VertexOUT Vout)  : SV_Target
 {
     return Vout.Color;
 }

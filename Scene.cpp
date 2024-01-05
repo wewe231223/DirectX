@@ -10,6 +10,16 @@ Scene::~Scene(){
 void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsCommandList> d3dCommandList){
 	m_d3dDevice = d3dDevice;
 	m_d3dCommandList = d3dCommandList;
+
+	CreateShaderResourceDescriptorHeaps();
+	CreateConstantBuffers();
+	CreateRootSignature();
+	CreateShaders();
+	CreateInputLayout();
+	CreateGeometry();
+	CreatePipeLineStateObject();
+
+
 }
 
 void Scene::CreateShaderResourceDescriptorHeaps(){
@@ -27,13 +37,18 @@ void Scene::CreateConstantBuffers(){
 
 	CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize * 1);
-	m_d3dDevice->CreateCommittedResource(
-		&HeapProperties, 
-		D3D12_HEAP_FLAG_NONE, 
-		&ConstantResourceDesc, 
-		D3D12_RESOURCE_STATE_GENERIC_READ, 
-		nullptr, 
-		IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()));
+	ThrowIfFailed(
+		m_d3dDevice->CreateCommittedResource(
+			&HeapProperties,
+			D3D12_HEAP_FLAG_NONE,
+			&ConstantResourceDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
+	);
+
+	ThrowIfFailed(m_d3dConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&TestConstant)));
+
 
 	D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
 
@@ -42,6 +57,7 @@ void Scene::CreateConstantBuffers(){
 	ConstantBufferViewDesc.SizeInBytes = CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
 	m_d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, m_d3dShaderResourceDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
 }
 
 void Scene::CreateRootSignature(){
@@ -60,15 +76,13 @@ void Scene::CreateRootSignature(){
 	ThrowIfFailed(D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, SerializedRootSignature.GetAddressOf(), ErrorBlob.GetAddressOf()));
 	ThrowIfFailed(m_d3dDevice->CreateRootSignature(0, SerializedRootSignature->GetBufferPointer(), SerializedRootSignature->GetBufferSize(), IID_PPV_ARGS(m_d3dRootSignature.GetAddressOf())));
 
-	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());
-
 
 }
 
 void Scene::CreateShaders(){
 	
-	m_d3dVertexShader = ::CompileShader(L"Shader//DefaultShader.hlsl",nullptr, "VertexShader", "vs_5_1");
-	m_d3dPixelShader = ::CompileShader(L"Shader//DefaultShader.hlsl", nullptr, "PixelShader", "ps_5_1");
+	m_d3dVertexShader = ::CompileShader(L"Shader//DefaultShader.hlsl",nullptr, "VS", "vs_5_1");
+	m_d3dPixelShader = ::CompileShader(L"Shader//DefaultShader.hlsl", nullptr, "PS", "ps_5_1");
 
 }
 
@@ -103,15 +117,12 @@ void Scene::CreateGeometry(){
 
 	VertexBufferOnGPU = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Vertices.data(), static_cast<UINT64>(Vertices.size() * sizeof(Vertex)), VertexBufferUploader);
 
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView{};
 
-	VertexBufferView.BufferLocation = VertexBufferOnGPU->GetGPUVirtualAddress();
-	VertexBufferView.SizeInBytes = static_cast<UINT>(Vertices.size() * sizeof(Vertex));
-	VertexBufferView.StrideInBytes = sizeof(Vertex);
+	TestVertexBuffer.BufferLocation = VertexBufferOnGPU->GetGPUVirtualAddress();
+	TestVertexBuffer.SizeInBytes = static_cast<UINT>(Vertices.size() * sizeof(Vertex));
+	TestVertexBuffer.StrideInBytes = sizeof(Vertex);
 
 	// BindVAO 와 같은 역할 
-	m_d3dCommandList->IASetVertexBuffers(0, 1, &VertexBufferView);
-	m_d3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 	std::vector<std::uint16_t> Indices{};
@@ -169,10 +180,9 @@ void Scene::CreateGeometry(){
 
 	IndexBufferOnGPU = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Indices.data(),static_cast<UINT64>(Indices.size() * sizeof(std::uint16_t)),IndexBufferUploader );
 
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView;
-	IndexBufferView.BufferLocation = IndexBufferUploader->GetGPUVirtualAddress();
-	IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
-	IndexBufferView.SizeInBytes = static_cast<UINT>(Indices.size() * sizeof(std::uint16_t));
+	TestIndexBuffer.BufferLocation = IndexBufferUploader->GetGPUVirtualAddress();
+	TestIndexBuffer.Format = DXGI_FORMAT_R16_UINT;
+	TestIndexBuffer.SizeInBytes = static_cast<UINT>(Indices.size() * sizeof(std::uint16_t));
 
 }
 
@@ -218,7 +228,14 @@ void Scene::Render(){
 	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());
 	
 
+
+	m_d3dCommandList->IASetVertexBuffers(0, 1, &TestVertexBuffer);
+	m_d3dCommandList->IASetIndexBuffer(&TestIndexBuffer);
+	m_d3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
+	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
+
 
 	
 }
