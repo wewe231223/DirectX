@@ -165,7 +165,12 @@ void Scene::CreateGeometry(){
 	Indices.push_back(3);
 	Indices.push_back(7);
 
-
+	/*
+	* 여러개의 메쉬를 사용할 때 Buffer을 여러개 생성하는 것이 아닌 
+	* 하나의 버퍼에 이어서 저장하고 시작점을 제시하는 방식으로 저장한다.
+	* 
+	* 관리를 어떻게 할 것인가? 
+	*/
 
 	Tvb = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Vertices.data(), static_cast<UINT64>(Vertices.size() * sizeof(Vertex)), Tvbu);
 
