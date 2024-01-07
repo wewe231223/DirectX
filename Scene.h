@@ -23,18 +23,20 @@ private:
 	
 	ComPtr<ID3D12Resource> m_d3dConstantBuffer{ nullptr };
 
-	ComPtr<ID3D12Resource> Tvb{};
-	ComPtr<ID3D12Resource> Tib{};
-
-	ComPtr<ID3D12Resource> Tvbu{};
-	ComPtr<ID3D12Resource> Tibu{};
-
-	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{};
-	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{};
-	BYTE* TestConstant{};
-
 	bool m_b4xMsaa{ false };
 	UINT m_n4xMsaaQuality{ 0 };
+
+// 애들을 관리할 구조를 만들어야 한다 	
+	ComPtr<ID3D12Resource> Tvb{}; // VertexBuffer 
+	ComPtr<ID3D12Resource> Tib{}; // IndexBuffer
+
+	ComPtr<ID3D12Resource> Tvbu{}; // VertexBuffer Uploader 
+	ComPtr<ID3D12Resource> Tibu{}; // IndexBuffer Uploader 
+
+	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{}; // VertexBufferView 
+	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 
+	BYTE* TestConstant{}; // ConstantBuffer Pointer 
+
 private:
 	virtual void CreateShaderResourceDescriptorHeaps();
 	virtual void CreateConstantBuffers();

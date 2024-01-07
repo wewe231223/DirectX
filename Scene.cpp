@@ -57,10 +57,6 @@ void Scene::CreateConstantBuffers(){
 	ConstantBufferViewDesc.SizeInBytes = CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
 	m_d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, m_d3dShaderResourceDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-	ObjectConstants c{};
-	::memcpy(&TestConstant[0], &c, sizeof(ObjectConstants));
-
 }
 
 void Scene::CreateRootSignature(){
@@ -224,7 +220,7 @@ void Scene::Set4xMsaaState(bool b4xMsaa, UINT n4xMsaaQuality){
 
 void Scene::Render(){
 
-	DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.25f * 3.141582, 1920.f / 1080.f, 1.f, 1000.f);
+	DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.25f * 3.141582f, 1920.f / 1080.f, 1.f, 1000.f);
 
 	DirectX::XMVECTOR eye = DirectX::XMVectorSet(10.f, 0.f, 0.f, 1.f);
 	DirectX::XMVECTOR at = DirectX::XMVectorZero();
