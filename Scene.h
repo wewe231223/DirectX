@@ -23,9 +23,15 @@ private:
 	
 	ComPtr<ID3D12Resource> m_d3dConstantBuffer{ nullptr };
 
+	ComPtr<ID3D12Resource> Tvb{};
+	ComPtr<ID3D12Resource> Tib{};
+
+	ComPtr<ID3D12Resource> Tvbu{};
+	ComPtr<ID3D12Resource> Tibu{};
+
 	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{};
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{};
-	ObjectConstants TestConstant{};
+	BYTE* TestConstant{};
 
 	bool m_b4xMsaa{ false };
 	UINT m_n4xMsaaQuality{ 0 };
@@ -42,5 +48,6 @@ public:
 	ComPtr<ID3D12PipelineState> GetPipeLineStateObject() const ;
 	void Set4xMsaaState(bool b4xMsaa, UINT n4xMsaaQuality);
 	void Render();
+	
 };	
 

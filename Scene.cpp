@@ -58,6 +58,9 @@ void Scene::CreateConstantBuffers(){
 
 	m_d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, m_d3dShaderResourceDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
+	ObjectConstants c{};
+	::memcpy(&TestConstant[0], &c, sizeof(ObjectConstants));
+
 }
 
 void Scene::CreateRootSignature(){
@@ -112,18 +115,6 @@ void Scene::CreateGeometry(){
 	Vertices.push_back(Vertex{ DirectX::XMFLOAT3( 1.f,-1.f, 1.f),DirectX::XMFLOAT3(0.f,0.f,0.f),DirectX::XMFLOAT2(0.f,0.f),DirectX::XMFLOAT4(DirectX::Colors::Green) });
 
 
-	ComPtr<ID3D12Resource> VertexBufferOnGPU{ nullptr };
-	ComPtr<ID3D12Resource> VertexBufferUploader{ nullptr };
-
-	VertexBufferOnGPU = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Vertices.data(), static_cast<UINT64>(Vertices.size() * sizeof(Vertex)), VertexBufferUploader);
-
-
-	TestVertexBuffer.BufferLocation = VertexBufferOnGPU->GetGPUVirtualAddress();
-	TestVertexBuffer.SizeInBytes = static_cast<UINT>(Vertices.size() * sizeof(Vertex));
-	TestVertexBuffer.StrideInBytes = sizeof(Vertex);
-
-	// BindVAO 와 같은 역할 
-
 
 	std::vector<std::uint16_t> Indices{};
 	Indices.push_back(0);
@@ -175,12 +166,16 @@ void Scene::CreateGeometry(){
 	Indices.push_back(7);
 
 
-	ComPtr<ID3D12Resource> IndexBufferOnGPU{ nullptr };
-	ComPtr<ID3D12Resource> IndexBufferUploader{ nullptr };
 
-	IndexBufferOnGPU = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Indices.data(),static_cast<UINT64>(Indices.size() * sizeof(std::uint16_t)),IndexBufferUploader );
+	Tvb = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Vertices.data(), static_cast<UINT64>(Vertices.size() * sizeof(Vertex)), Tvbu);
 
-	TestIndexBuffer.BufferLocation = IndexBufferUploader->GetGPUVirtualAddress();
+
+	TestVertexBuffer.BufferLocation = Tvb->GetGPUVirtualAddress();
+	TestVertexBuffer.SizeInBytes = static_cast<UINT>(Vertices.size() * sizeof(Vertex));
+	TestVertexBuffer.StrideInBytes = sizeof(Vertex);
+	Tib = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Indices.data(),static_cast<UINT64>(Indices.size() * sizeof(std::uint16_t)),Tibu );
+
+	TestIndexBuffer.BufferLocation = Tibu->GetGPUVirtualAddress();
 	TestIndexBuffer.Format = DXGI_FORMAT_R16_UINT;
 	TestIndexBuffer.SizeInBytes = static_cast<UINT>(Indices.size() * sizeof(std::uint16_t));
 
@@ -223,6 +218,21 @@ void Scene::Set4xMsaaState(bool b4xMsaa, UINT n4xMsaaQuality){
 }
 
 void Scene::Render(){
+
+	DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.25f * 3.141582, 1920.f / 1080.f, 1.f, 1000.f);
+
+	DirectX::XMVECTOR eye = DirectX::XMVectorSet(10.f, 0.f, 0.f, 1.f);
+	DirectX::XMVECTOR at = DirectX::XMVectorZero();
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
+
+	DirectX::XMMATRIX V = DirectX::XMMatrixLookAtLH(eye, at, up);
+
+	DirectX::XMMATRIX VP = V * P;
+	ObjectConstants c{};
+	DirectX::XMStoreFloat4x4(&c.WorldViewProjection, DirectX::XMMatrixTranspose(VP));
+	::memcpy(&TestConstant[0], &c, sizeof(ObjectConstants));
+
+
 	ID3D12DescriptorHeap* DescriptorHeaps[] = { m_d3dShaderResourceDescriptorHeap.Get() };
 	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());

@@ -72,6 +72,7 @@ ComPtr<ID3D12Resource> CreateDefaultBuffer(
         D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_GENERIC_READ
     );
+    d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
 
     return DefaultBuffer;
 }
