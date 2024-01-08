@@ -14,14 +14,13 @@ public:
 	};
 
 private:
+	static ComPtr<ID3D12Resource> m_d3dVertexBufferOnGPU;
+	static ComPtr<ID3D12Resource> m_d3dIndexBufferOnGPU;
+
+	static ComPtr<ID3D12Resource> m_d3dVertexBufferUploader;
+	static ComPtr<ID3D12Resource> m_d3dIndexBufferUploader;
+private:
 	std::string m_sName{};
-
-	ComPtr<ID3D12Resource> m_d3dVertexBufferOnGPU{ nullptr };
-	ComPtr<ID3D12Resource> m_d3dIndexBufferOnGPU{ nullptr };
-
-	ComPtr<ID3D12Resource> m_d3dVertexBufferUploader{ nullptr };
-	ComPtr<ID3D12Resource> m_d3dIndexBufferUploader{ nullptr };
-
 	UINT m_nVertexByteStride{ 0 };
 	UINT m_nVertexByteSize{ 0 };
 	UINT m_nIndexBufferByteSize{ 0 };
