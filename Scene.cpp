@@ -16,8 +16,8 @@ void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsComm
 	CreateRootSignature();
 	CreateShaders();
 	CreateInputLayout();
-	CreateGeometry();
 	CreatePipeLineStateObject();
+	CreateGeometry();
 
 
 }
@@ -169,17 +169,17 @@ void Scene::CreateGeometry(){
 	*/
 
 	Tvb = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Vertices.data(), static_cast<UINT64>(Vertices.size() * sizeof(Vertex)), Tvbu);
-
-
 	TestVertexBuffer.BufferLocation = Tvb->GetGPUVirtualAddress();
 	TestVertexBuffer.SizeInBytes = static_cast<UINT>(Vertices.size() * sizeof(Vertex));
 	TestVertexBuffer.StrideInBytes = sizeof(Vertex);
-	Tib = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Indices.data(),static_cast<UINT64>(Indices.size() * sizeof(std::uint16_t)),Tibu );
 
-	TestIndexBuffer.BufferLocation = Tibu->GetGPUVirtualAddress();
+	Tib = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Indices.data(),static_cast<UINT64>(Indices.size() * sizeof(std::uint16_t)),Tibu );
+	TestIndexBuffer.BufferLocation = Tib->GetGPUVirtualAddress();
 	TestIndexBuffer.Format = DXGI_FORMAT_R16_UINT;
 	TestIndexBuffer.SizeInBytes = static_cast<UINT>(Indices.size() * sizeof(std::uint16_t));
+	
 
+	
 }
 
 void Scene::CreatePipeLineStateObject(){
@@ -195,6 +195,7 @@ void Scene::CreatePipeLineStateObject(){
 	PipeLineStateObjectDesc.VS = ::GetShaderByteCode(m_d3dVertexShader);
 	PipeLineStateObjectDesc.PS = ::GetShaderByteCode(m_d3dPixelShader);
 	PipeLineStateObjectDesc.RasterizerState = RasterizerDesc;
+	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	PipeLineStateObjectDesc.BlendState = BlendDesc;
 	PipeLineStateObjectDesc.DepthStencilState = DepthStencilDesc;
 	PipeLineStateObjectDesc.SampleMask = UINT_MAX;
@@ -222,7 +223,7 @@ void Scene::Render(){
 
 	DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.25f * 3.141582f, 1920.f / 1080.f, 1.f, 1000.f);
 
-	DirectX::XMVECTOR eye = DirectX::XMVectorSet(10.f, 0.f, 0.f, 1.f);
+	DirectX::XMVECTOR eye = DirectX::XMVectorSet(10.f, 10.f, 10.f, 1.f);
 	DirectX::XMVECTOR at = DirectX::XMVectorZero();
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
 
@@ -238,15 +239,10 @@ void Scene::Render(){
 	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());
 	
-
-
-	m_d3dCommandList->IASetVertexBuffers(0, 1, &TestVertexBuffer);
-	m_d3dCommandList->IASetIndexBuffer(&TestIndexBuffer);
-	m_d3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	::BindVertexBuffer(m_d3dCommandList, TestVertexBuffer, TestIndexBuffer, D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 
-	
 }
