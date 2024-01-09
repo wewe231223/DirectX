@@ -32,11 +32,15 @@ Mesh::~Mesh(){
 
 
 void Mesh::UploadVertexBuffer(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsCommandList> d3dCommandList){
+	if (Mesh::m_d3dVertexBufferOnGPU) Mesh::m_d3dVertexBufferOnGPU.Reset();
+	if (Mesh::m_d3dVertexBufferUploader) Mesh::m_d3dVertexBufferUploader.Reset();
 	m_d3dVertexBufferOnGPU = ::CreateDefaultBuffer(d3dDevice.Get(), d3dCommandList.Get(), Mesh::m_vertices.data(), static_cast<UINT64>(Mesh::m_vertices.size() * sizeof(Vertex)), Mesh::m_d3dVertexBufferUploader);
 	Mesh::m_nVertexByteSize = static_cast<UINT>(Mesh::m_vertices.size() * sizeof(Vertex));
 }
 
 void Mesh::UploadIndexBuffer(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsCommandList> d3dCommandList) {
+	if (Mesh::m_d3dIndexBufferOnGPU) Mesh::m_d3dIndexBufferOnGPU.Reset();
+	if (Mesh::m_d3dIndexBufferUploader) Mesh::m_d3dIndexBufferUploader.Reset();
 	m_d3dIndexBufferOnGPU = ::CreateDefaultBuffer(d3dDevice.Get(), d3dCommandList.Get(), Mesh::m_indices.data(), static_cast<UINT64>(Mesh::m_indices.size() * sizeof(m_indices)), Mesh::m_d3dIndexBufferUploader);
 	Mesh::m_nIndexBufferByteSize = static_cast<UINT>(Mesh::m_indices.size() * sizeof(std::uint16_t));
 }
