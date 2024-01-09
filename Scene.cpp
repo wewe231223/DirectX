@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "Scene.h"
+#include "Mesh.h"
 
 Scene::Scene(){
+	
 }
 
 Scene::~Scene(){
@@ -167,19 +169,10 @@ void Scene::CreateGeometry(){
 	* 
 	* 관리를 어떻게 할 것인가? 
 	*/
-
-	Tvb = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Vertices.data(), static_cast<UINT64>(Vertices.size() * sizeof(Vertex)), Tvbu);
-	TestVertexBuffer.BufferLocation = Tvb->GetGPUVirtualAddress();
-	TestVertexBuffer.SizeInBytes = static_cast<UINT>(Vertices.size() * sizeof(Vertex));
-	TestVertexBuffer.StrideInBytes = sizeof(Vertex);
-
-	Tib = CreateDefaultBuffer(m_d3dDevice.Get(), m_d3dCommandList.Get(), Indices.data(),static_cast<UINT64>(Indices.size() * sizeof(std::uint16_t)),Tibu );
-	TestIndexBuffer.BufferLocation = Tib->GetGPUVirtualAddress();
-	TestIndexBuffer.Format = DXGI_FORMAT_R16_UINT;
-	TestIndexBuffer.SizeInBytes = static_cast<UINT>(Indices.size() * sizeof(std::uint16_t));
 	
-
-	
+	mesh = std::make_unique<Mesh>("Box", Vertices, Indices);
+	mesh->UploadVertexBuffer(m_d3dDevice, m_d3dCommandList);
+	mesh->UploadIndexBuffer(m_d3dDevice, m_d3dCommandList);
 }
 
 void Scene::CreatePipeLineStateObject(){
@@ -239,7 +232,7 @@ void Scene::Render(){
 	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());
 	
-	::BindVertexBuffer(m_d3dCommandList, TestVertexBuffer, TestIndexBuffer, D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);

@@ -2,6 +2,8 @@
 struct ObjectConstants {
 	DirectX::XMFLOAT4X4 WorldViewProjection{ Identity };
 };
+class Mesh;
+
 class Scene{
 public:
 	Scene();
@@ -32,6 +34,8 @@ private:
 
 	ComPtr<ID3D12Resource> Tvbu{}; // VertexBuffer Uploader 
 	ComPtr<ID3D12Resource> Tibu{}; // IndexBuffer Uploader 
+
+	std::unique_ptr<Mesh> mesh{ nullptr };
 
 	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{}; // VertexBufferView 
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 

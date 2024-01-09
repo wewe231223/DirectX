@@ -106,7 +106,7 @@ D3D12_SHADER_BYTECODE GetShaderByteCode(ComPtr<ID3DBlob> d3dShaderBlob){
     return D3D12_SHADER_BYTECODE{ reinterpret_cast<BYTE*>(d3dShaderBlob->GetBufferPointer()),d3dShaderBlob->GetBufferSize() };
 }
 
-void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList,D3D12_VERTEX_BUFFER_VIEW& d3dVertexBuffer, D3D12_INDEX_BUFFER_VIEW& d3dIndexBuffer, D3D_PRIMITIVE_TOPOLOGY d3dTopology){
+void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList,const D3D12_VERTEX_BUFFER_VIEW& d3dVertexBuffer,const D3D12_INDEX_BUFFER_VIEW& d3dIndexBuffer, D3D_PRIMITIVE_TOPOLOGY d3dTopology){
     d3dCommandList->IASetVertexBuffers(0, 1, &d3dVertexBuffer);
     d3dCommandList->IASetIndexBuffer(&d3dIndexBuffer);
     d3dCommandList->IASetPrimitiveTopology(d3dTopology);

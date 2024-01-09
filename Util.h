@@ -62,4 +62,4 @@ constexpr DirectX::XMFLOAT4X4 Identity = {
 ComPtr<ID3DBlob> CompileShader(const std::wstring& wcsFileName, const D3D_SHADER_MACRO* d3dDefines, const std::string& csEntryPoint, const std::string& csTarget);
 D3D12_SHADER_BYTECODE GetShaderByteCode(ComPtr<ID3DBlob> d3dShaderBlob);
 
-void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList, D3D12_VERTEX_BUFFER_VIEW& d3dVertexBuffer, D3D12_INDEX_BUFFER_VIEW& d3dIndexBuffer, D3D_PRIMITIVE_TOPOLOGY d3dTopology);
+void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList,const D3D12_VERTEX_BUFFER_VIEW& d3dVertexBuffer,const D3D12_INDEX_BUFFER_VIEW& d3dIndexBuffer, D3D_PRIMITIVE_TOPOLOGY d3dTopology);
