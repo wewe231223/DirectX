@@ -62,7 +62,7 @@ void Timer::Update(){
 	INT64 CurrentTime{};
 	::QueryPerformanceCounter((LARGE_INTEGER*)&CurrentTime);
 	m_nCurrentTime = CurrentTime;
-	m_fDeltaTime = static_cast<float>(m_nCurrentTime - m_nPrevTime) * m_fSecondsPerCount;
+	m_fDeltaTime = (m_nCurrentTime - m_nPrevTime) * m_fSecondsPerCount;
 	m_nPrevTime = CurrentTime;
 
 	if (m_fDeltaTime < 0.f) {

@@ -197,14 +197,22 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         break;
     case WM_MENUCHAR:
         // Accel Handle 을 사용하지 않으므로 이와 같은 입력에 반응하지 않도록 한다 
-        break;
-        //return MAKELRESULT(0, MNC_CLOSE);
+        //break;
+        return MAKELRESULT(0, MNC_CLOSE);
      
     case WM_GETMINMAXINFO:
         //윈도우  최소크기 지정 
         ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
         ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
         break;
+    case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_MOUSEMOVE:
+
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
