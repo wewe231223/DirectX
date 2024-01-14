@@ -2,12 +2,12 @@
 #include "Scene.h"
 #include "Mesh.h"
 
+
 Scene::Scene(){
 	
 }
 
 Scene::~Scene(){
-	m_d3dConstantBuffer->Unmap(0, nullptr);
 }
 
 void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsCommandList> d3dCommandList){
@@ -35,22 +35,24 @@ void Scene::CreateShaderResourceDescriptorHeaps(){
 }
 
 void Scene::CreateConstantBuffers(){
-	UINT ElementByteSize = CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	//UINT ElementByteSize = CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
 
-	CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_UPLOAD);
-	CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize);
-	ThrowIfFailed(
-		m_d3dDevice->CreateCommittedResource(
-			&HeapProperties,
-			D3D12_HEAP_FLAG_NONE,
-			&ConstantResourceDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
-	);
+	//CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_UPLOAD);
+	//CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize);
+	//ThrowIfFailed(
+	//	m_d3dDevice->CreateCommittedResource(
+	//		&HeapProperties,
+	//		D3D12_HEAP_FLAG_NONE,
+	//		&ConstantResourceDesc,
+	//		D3D12_RESOURCE_STATE_GENERIC_READ,
+	//		nullptr,
+	//		IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
+	//);
 
+	CBuffer = std::make_unique<ConstantBuffer<ObjectConstants>>(m_d3dDevice);
 
+	
 
 	//D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
 
@@ -196,7 +198,7 @@ void Scene::CreatePipeLineStateObject(){
 	PipeLineStateObjectDesc.VS = ::GetShaderByteCode(m_d3dVertexShader);
 	PipeLineStateObjectDesc.PS = ::GetShaderByteCode(m_d3dPixelShader);
 	PipeLineStateObjectDesc.RasterizerState = RasterizerDesc;
-	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	PipeLineStateObjectDesc.BlendState = BlendDesc;
 	PipeLineStateObjectDesc.DepthStencilState = DepthStencilDesc;
 	PipeLineStateObjectDesc.SampleMask = UINT_MAX;
@@ -236,12 +238,12 @@ void Scene::Render(){
 	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 
 
-	ObjectConstants* c{};
-	ThrowIfFailed(m_d3dConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&c)));
-	DirectX::XMStoreFloat4x4(&c->WorldViewProjection, DirectX::XMMatrixTranspose(VP));
-	m_d3dConstantBuffer->Unmap(0, nullptr);
-	//::memcpy(&TestConstant, &c, sizeof(ObjectConstants));
-	m_d3dCommandList->SetGraphicsRootConstantBufferView(0, m_d3dConstantBuffer->GetGPUVirtualAddress());
+	ObjectConstants cp{};
+	
+	DirectX::XMStoreFloat4x4(&cp.WorldViewProjection, DirectX::XMMatrixTranspose(VP));
+	CBuffer->CopyData(cp);
+
+	m_d3dCommandList->SetGraphicsRootConstantBufferView(0, CBuffer->GetVirtualAddress());
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());

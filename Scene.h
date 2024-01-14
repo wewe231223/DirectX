@@ -1,4 +1,7 @@
 #pragma once
+// Template 라 전방선언 불가 
+// 완성 후 pch 로 옮김?
+#include "ConstantBuffer.h"
 struct ObjectConstants {
 	DirectX::XMFLOAT4X4 WorldViewProjection{ Identity };
 };
@@ -28,18 +31,13 @@ private:
 	bool m_b4xMsaa{ false };
 	UINT m_n4xMsaaQuality{ 0 };
 
-// 애들을 관리할 구조를 만들어야 한다 	
-	ComPtr<ID3D12Resource> Tvb{}; // VertexBuffer 
-	ComPtr<ID3D12Resource> Tib{}; // IndexBuffer
-
-	ComPtr<ID3D12Resource> Tvbu{}; // VertexBuffer Uploader 
-	ComPtr<ID3D12Resource> Tibu{}; // IndexBuffer Uploader 
-
 	std::unique_ptr<Mesh> mesh{ nullptr };
 
 	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{}; // VertexBufferView 
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 
 	ObjectConstants* TestConstant{}; // ConstantBuffer Pointer 
+
+	std::unique_ptr<ConstantBuffer<ObjectConstants>> CBuffer{ nullptr };
 
 private:
 	virtual void CreateShaderResourceDescriptorHeaps();
