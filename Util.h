@@ -24,7 +24,7 @@ public:
 WNDCLASSEXW GetDefaultWindowProperties(HINSTANCE hInstance);
 #define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
 
-constexpr UINT CalcConstantBufferByteSize(UINT Byte) {
+inline UINT CalcConstantBufferByteSize(UINT Byte) {
 	/*
 	* 들어온 크기를 0xff(256 바이트)의 배수로 만들어준다
 	* Byte = 300

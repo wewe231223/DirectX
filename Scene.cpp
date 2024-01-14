@@ -7,6 +7,7 @@ Scene::Scene(){
 }
 
 Scene::~Scene(){
+	m_d3dConstantBuffer->Unmap(0, nullptr);
 }
 
 void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsCommandList> d3dCommandList){
@@ -38,7 +39,7 @@ void Scene::CreateConstantBuffers(){
 
 
 	CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_UPLOAD);
-	CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize * 1);
+	CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize);
 	ThrowIfFailed(
 		m_d3dDevice->CreateCommittedResource(
 			&HeapProperties,
@@ -49,16 +50,15 @@ void Scene::CreateConstantBuffers(){
 			IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
 	);
 
-	ThrowIfFailed(m_d3dConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&TestConstant)));
 
 
-	D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
+	//D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
 
-	D3D12_CONSTANT_BUFFER_VIEW_DESC ConstantBufferViewDesc{};
-	ConstantBufferViewDesc.BufferLocation = ConstantBufferAdress;
-	ConstantBufferViewDesc.SizeInBytes = CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	//D3D12_CONSTANT_BUFFER_VIEW_DESC ConstantBufferViewDesc{};
+	//ConstantBufferViewDesc.BufferLocation = ConstantBufferAdress;
+	//ConstantBufferViewDesc.SizeInBytes = CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-	m_d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, m_d3dShaderResourceDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	//m_d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, m_d3dShaderResourceDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void Scene::CreateRootSignature(){
@@ -67,7 +67,7 @@ void Scene::CreateRootSignature(){
 	CD3DX12_DESCRIPTOR_RANGE ConstantBufferDescriptorTable;
 	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,1,0);
 	
-	RootParameter[0].InitAsDescriptorTable(1, &ConstantBufferDescriptorTable);
+	RootParameter[0].InitAsConstantBufferView(0);
 
 	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(1, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -231,19 +231,22 @@ void Scene::Render(){
 	DirectX::XMMATRIX V = DirectX::XMMatrixLookAtLH(eye, at, up);
 
 	DirectX::XMMATRIX VP = V * P;
-	ObjectConstants c{};
-	DirectX::XMStoreFloat4x4(&c.WorldViewProjection, DirectX::XMMatrixTranspose(VP));
-	::memcpy(&TestConstant[0], &c, sizeof(ObjectConstants));
-
-
 	ID3D12DescriptorHeap* DescriptorHeaps[] = { m_d3dShaderResourceDescriptorHeap.Get() };
-	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());
+	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
+
+
+	ObjectConstants* c{};
+	ThrowIfFailed(m_d3dConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&c)));
+	DirectX::XMStoreFloat4x4(&c->WorldViewProjection, DirectX::XMMatrixTranspose(VP));
+	m_d3dConstantBuffer->Unmap(0, nullptr);
+	//::memcpy(&TestConstant, &c, sizeof(ObjectConstants));
+	m_d3dCommandList->SetGraphicsRootConstantBufferView(0, m_d3dConstantBuffer->GetGPUVirtualAddress());
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
+	//m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 
 }
+	

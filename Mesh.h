@@ -27,7 +27,7 @@ private:
 	UINT m_nIndexCount{ 0 };
 	UINT m_nStartIndexLocation{ 0 };
 public:
-	D3D12_VERTEX_BUFFER_VIEW GetVertexView() const;
+	const D3D12_VERTEX_BUFFER_VIEW GetVertexView() const;
 	D3D12_INDEX_BUFFER_VIEW GetIndexView() const;
 
 	void UploadVertexBuffer(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsCommandList> d3dCommandList);

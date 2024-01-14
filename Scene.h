@@ -39,7 +39,7 @@ private:
 
 	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{}; // VertexBufferView 
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 
-	BYTE* TestConstant{}; // ConstantBuffer Pointer 
+	ObjectConstants* TestConstant{}; // ConstantBuffer Pointer 
 
 private:
 	virtual void CreateShaderResourceDescriptorHeaps();

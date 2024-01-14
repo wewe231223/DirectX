@@ -46,7 +46,7 @@ void Mesh::UploadIndexBuffer(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12Graphi
 }
 
 
-D3D12_VERTEX_BUFFER_VIEW Mesh::GetVertexView() const {
+const D3D12_VERTEX_BUFFER_VIEW Mesh::GetVertexView() const {
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView{};
 	VertexBufferView.BufferLocation = m_d3dVertexBufferOnGPU->GetGPUVirtualAddress();
 	VertexBufferView.StrideInBytes = m_nVertexByteStride;
