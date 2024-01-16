@@ -104,7 +104,9 @@ namespace ConstantBuffer {
 			nullptr,
 			IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf())));
 
-		static UINT NumOfDescriptorTable = 0;
+		// Descruiptor Table 에서는 매우 중요한 숫자이다
+		// CBV SRV UAV 를 바인딩한 개수대로 늘려줘야 다음 Descriptor 생성 시에 제대로된 위치에 Descriptor Table 을 생성 가능하다 
+		static UINT NumOfResources = 0;
 
 		D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferVirtualAddress = m_d3dConstantBuffer->GetGPUVirtualAddress();
 		D3D12_CONSTANT_BUFFER_VIEW_DESC ConstantBufferViewDesc{};
@@ -113,9 +115,12 @@ namespace ConstantBuffer {
 		ConstantBufferViewDesc.SizeInBytes = ElementByteSize;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE CPUHandle{ d3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart() };
-		CPUHandle.Offset(NumOfDescriptorTable, d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+		CPUHandle.Offset(NumOfResources, d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 		d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, CPUHandle);
-		NumOfDescriptorTable += 1;
+
+		// 일단 상수 버퍼만을 취급하고 있으므로 1을 더해줬다 ( CBV 하나 ) 
+		// 만약 여기에 SRV 도 같이 묶는다면, 1이 아니라 2을 더해줘야 한다 ( CBV, SRV 두개 ) 
+		NumOfResources += 1;
 	}
 
 	template<typename T>
