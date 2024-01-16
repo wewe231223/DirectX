@@ -1,7 +1,5 @@
 #pragma once
-// Template 라 전방선언 불가 
-// 완성 후 pch 로 옮김?
-#include "ConstantBuffer.h"
+
 struct ObjectConstants {
 	DirectX::XMFLOAT4X4 WorldViewProjection{ Identity };
 };
@@ -37,7 +35,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 
 	ObjectConstants* TestConstant{}; // ConstantBuffer Pointer 
 
-	std::unique_ptr<ConstantBuffer<ObjectConstants>> CBuffer{ nullptr };
+	std::unique_ptr<ConstantBuffer::DescriptorTable<ObjectConstants>> CBuffer{ nullptr };
 
 private:
 	virtual void CreateShaderResourceDescriptorHeaps();

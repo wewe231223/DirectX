@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Scene.h"
 #include "Mesh.h"
+#include "Camera.h"
 
 
 Scene::Scene(){
@@ -49,7 +50,7 @@ void Scene::CreateConstantBuffers(){
 	//		nullptr,
 	//		IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
 	//);
-	CBuffer = std::make_unique<ConstantBuffer<ObjectConstants>>(m_d3dDevice);
+	CBuffer = std::make_unique<ConstantBuffer::DescriptorTable<ObjectConstants>>(m_d3dDevice,m_d3dShaderResourceDescriptorHeap);
 
 
 	//D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
@@ -68,7 +69,7 @@ void Scene::CreateRootSignature(){
 	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,1,0);
 	
 	
-	RootParameter[0].InitAsConstantBufferView(0); // Root Descriptor
+	RootParameter[0].InitAsDescriptorTable(1,&ConstantBufferDescriptorTable); // Root Descriptor
 	RootParameter[1].InitAsConstants(16, 1); // Root Constant 
 
 	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(2, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -244,7 +245,7 @@ void Scene::Render(){
 	CBuffer->CopyData(cp);
 
 	DirectX::XMFLOAT4X4 m{Identity};
-	m_d3dCommandList->SetGraphicsRootConstantBufferView(0, CBuffer->GetVirtualAddress());
+	CBuffer->BindCommandList(m_d3dCommandList, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0);
 	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

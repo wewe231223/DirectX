@@ -65,5 +65,7 @@ using Vertex = _tagVertex;
 
 #include "resource.h"
 #include "Util.h"
+#include "ConstantBuffer.h"
+
 
 

@@ -104,6 +104,8 @@ LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, 
 LRESULT ApplicationFunctions::DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
+UINT kWindowWidth = FRAMEBUFFER_WIDTH;
+UINT kWindowHeight = FRAMEBUFFER_HEIGHT;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Scene.h"
 
@@ -486,6 +488,7 @@ void DirectXApplication::LogAdapters(){
             Output->GetDesc(&Desc_);
             Text = L"***Output***";
             Text += Desc_.DeviceName;
+            Text += L"\n";
             OutputDebugString(Text.c_str());
 
             UINT Count{ 0 };
