@@ -64,14 +64,16 @@ void Scene::CreateConstantBuffers(){
 }
 
 void Scene::CreateRootSignature(){
-	CD3DX12_ROOT_PARAMETER RootParameter[1];
+	CD3DX12_ROOT_PARAMETER RootParameter[2];
 
 	CD3DX12_DESCRIPTOR_RANGE ConstantBufferDescriptorTable;
 	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,1,0);
 	
+	
 	RootParameter[0].InitAsConstantBufferView(0);
+	RootParameter[1].InitAsConstants(16, 1);
 
-	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(1, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(2, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ComPtr<ID3DBlob> SerializedRootSignature{ nullptr };
 	ComPtr<ID3DBlob> ErrorBlob{ nullptr };
@@ -84,8 +86,8 @@ void Scene::CreateRootSignature(){
 
 void Scene::CreateShaders(){
 	
-	m_d3dVertexShader = ::CompileShader(L"Shader//DefaultShader.hlsl",nullptr, "VS", "vs_5_1");
-	m_d3dPixelShader = ::CompileShader(L"Shader//DefaultShader.hlsl", nullptr, "PS", "ps_5_1");
+	m_d3dVertexShader = ::CompileShader(L"Shader//DefaultShader.hlsl",nullptr, "DefaultVertexShader", "vs_5_1");
+	m_d3dPixelShader = ::CompileShader(L"Shader//DefaultShader.hlsl", nullptr, "DefaultPixelShader", "ps_5_1");
 
 }
 
@@ -198,7 +200,7 @@ void Scene::CreatePipeLineStateObject(){
 	PipeLineStateObjectDesc.VS = ::GetShaderByteCode(m_d3dVertexShader);
 	PipeLineStateObjectDesc.PS = ::GetShaderByteCode(m_d3dPixelShader);
 	PipeLineStateObjectDesc.RasterizerState = RasterizerDesc;
-	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	PipeLineStateObjectDesc.BlendState = BlendDesc;
 	PipeLineStateObjectDesc.DepthStencilState = DepthStencilDesc;
 	PipeLineStateObjectDesc.SampleMask = UINT_MAX;
@@ -243,12 +245,18 @@ void Scene::Render(){
 	DirectX::XMStoreFloat4x4(&cp.WorldViewProjection, DirectX::XMMatrixTranspose(VP));
 	CBuffer->CopyData(cp);
 
+	DirectX::XMFLOAT4X4 m{Identity};
 	m_d3dCommandList->SetGraphicsRootConstantBufferView(0, CBuffer->GetVirtualAddress());
+	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
+	// XMMatrix 자료형과 XMFloat4x4의 행렬 방향은 반대로 되어있다. 따라서 해당 자료형을 사용할 때에는 행렬을 Transpose 해서 사용해야한다
+	DirectX::XMStoreFloat4x4(&m, DirectX::XMMatrixTranspose( DirectX::XMMatrixTranslationFromVector(DirectX::FXMVECTOR{ -100.f,-101.f,-100.f })));
+	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
+	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 }
 	

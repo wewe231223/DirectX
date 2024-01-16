@@ -76,7 +76,14 @@ ComPtr<ID3D12Resource> CreateDefaultBuffer(
 
     return DefaultBuffer;
 }
-
+/// <summary>
+/// Shader Compile 
+/// </summary>
+/// <param name="wcsFileName"> : File's Name</param>
+/// <param name="d3dDefines"> : Ordinary takes 'nullptr'</param>
+/// <param name="csEntryPoint"> : Shader's EntryPoint Function Name</param>
+/// <param name="csTarget"> : Shader's Target( vs_5_0 ... )</param>
+/// <returns></returns>
 ComPtr<ID3DBlob> CompileShader(
     const std::wstring& wcsFileName, 
     const D3D_SHADER_MACRO* d3dDefines, 
@@ -85,7 +92,7 @@ ComPtr<ID3DBlob> CompileShader(
 
     UINT CompileFlags{ 0 };
 #if defined(DEBUG) || defined(_DEBUG)
-    CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+    CompileFlags = D3DCOMPILE_DEBUG bitor D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif //!defined(DEBUG) | defined(_DEBUG)
 
     ComPtr<ID3DBlob> ByteCode{ nullptr };

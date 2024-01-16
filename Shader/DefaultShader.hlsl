@@ -4,7 +4,12 @@ struct cbMatrix
     float4x4 WorldViewProj;
 };
 
+struct world
+{
+    float4x4 World;
+};
 ConstantBuffer<cbMatrix> ObjectConstant : register(b0);
+ConstantBuffer<world> WorldConstant : register(b1);
 
 struct VertexIN
 {
@@ -22,12 +27,13 @@ struct VertexOUT
     float4 Color : COLOR;
 };
 
-VertexOUT VS(VertexIN Vin)
+VertexOUT DefaultVertexShader(VertexIN Vin)
 {
     VertexOUT Vout;
     
+    float4 PosW = mul(float4(Vin.Pos, 1.f), WorldConstant.World);
+    Vout.PosL = mul(PosW, ObjectConstant.WorldViewProj);
     
-    Vout.PosL = mul(float4(Vin.Pos, 1.0f), ObjectConstant.WorldViewProj);
     Vout.Normal = Vin.Normal;
     Vout.TexCoord = Vin.TexCoord;
     Vout.Color = Vin.Color;
@@ -35,7 +41,7 @@ VertexOUT VS(VertexIN Vin)
     return Vout;
 }
 
-float4 PS(VertexOUT Vout)  : SV_Target
+float4 DefaultPixelShader(VertexOUT Vout)  : SV_Target
 {
     return Vout.Color;
 }

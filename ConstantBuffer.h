@@ -8,10 +8,12 @@ public:
 private:
 	ComPtr<ID3D12Resource> m_d3dConstantBuffer{ nullptr };
 	T* m_constantInterface{ nullptr };
+	size_t m_nBufferSize{ 0 };
 	bool m_bMapped{ false };
 public:
 	void CopyData(const T& Data);
 	D3D12_GPU_VIRTUAL_ADDRESS GetVirtualAddress() const;
+	void Release();
 };
 
 template<typename T>
@@ -24,6 +26,7 @@ ConstantBuffer<T>::ConstantBuffer(ComPtr<ID3D12Device> d3dDevice){
 
 	CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize);
+	m_nBufferSize = sizeof(T);
 
 	ThrowIfFailed(d3dDevice->CreateCommittedResource(
 		&HeapProperties, 
@@ -41,10 +44,9 @@ inline ConstantBuffer<T>::~ConstantBuffer(){
 
 template<typename T>
 inline void ConstantBuffer<T>::CopyData(const T& Data) {
-	T* Temp{nullptr};
-	ThrowIfFailed(m_d3dConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&Temp)));
+	ThrowIfFailed(m_d3dConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&m_constantInterface)));
 	m_bMapped = true;
-	::memcpy(Temp, &Data, sizeof(T));
+	::memcpy(m_constantInterface, &Data, m_nBufferSize);
 	m_d3dConstantBuffer->Unmap(0, nullptr);
 	m_bMapped = false;
 }
@@ -52,4 +54,9 @@ inline void ConstantBuffer<T>::CopyData(const T& Data) {
 template<typename T>
 inline D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer<T>::GetVirtualAddress() const {
 	return m_d3dConstantBuffer->GetGPUVirtualAddress();
+}
+
+template<typename T>
+inline void ConstantBuffer<T>::Release(){
+	if (m_bMapped) m_d3dConstantBuffer->Unmap(0, nullptr);
 }
