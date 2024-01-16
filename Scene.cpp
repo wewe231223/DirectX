@@ -49,10 +49,8 @@ void Scene::CreateConstantBuffers(){
 	//		nullptr,
 	//		IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
 	//);
-
 	CBuffer = std::make_unique<ConstantBuffer<ObjectConstants>>(m_d3dDevice);
 
-	
 
 	//D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
 
@@ -70,8 +68,8 @@ void Scene::CreateRootSignature(){
 	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,1,0);
 	
 	
-	RootParameter[0].InitAsConstantBufferView(0);
-	RootParameter[1].InitAsConstants(16, 1);
+	RootParameter[0].InitAsConstantBufferView(0); // Root Descriptor
+	RootParameter[1].InitAsConstants(16, 1); // Root Constant 
 
 	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(2, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 

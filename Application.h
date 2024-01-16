@@ -13,8 +13,7 @@ protected:
 	HACCEL m_hHaccelTable{};
 	MSG m_mMsg{};
 public:
-	LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-public:
+	virtual LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void Loop();
 	virtual void Update(float fDeltaTime) {};
 	virtual void Render() {};
@@ -26,6 +25,7 @@ public:
 namespace ApplicationFunctions {
 	bool SetMainApplication(Application* app);
 	LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	LRESULT CALLBACK DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Timer;
@@ -39,7 +39,7 @@ public:
 	DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties);
 	virtual ~DirectXApplication();
 public:
-	LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
 public:
 	virtual void Loop() override;
 	virtual void Update(float fDeltaTime) override;

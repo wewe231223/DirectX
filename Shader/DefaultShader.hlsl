@@ -8,6 +8,7 @@ struct world
 {
     float4x4 World;
 };
+
 ConstantBuffer<cbMatrix> ObjectConstant : register(b0);
 ConstantBuffer<world> WorldConstant : register(b1);
 

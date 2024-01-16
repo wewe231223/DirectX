@@ -20,7 +20,6 @@ Application::Application(HINSTANCE hInstance,LPCWSTR wcpWindowName){
     if (!m_hWnd) {
         exit(-1);
     }
-    m_hHaccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDC_DIRECTX));
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
 }
@@ -36,7 +35,6 @@ Application::Application(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW
     if (!m_hWnd) {
         exit(-1);
     }
-    m_hHaccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDC_DIRECTX));
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
 }
@@ -77,6 +75,7 @@ LRESULT Application::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     return 0;
 }
 
+
 void Application::Loop(){
     while (true) {
         if (PeekMessage(&m_mMsg, NULL, 0, 0, PM_REMOVE)) {
@@ -99,7 +98,11 @@ bool ApplicationFunctions::SetMainApplication(Application* app){
     return true;
 }
 LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
-    return mApp->Procedure(hWnd,message,wParam,lParam);
+    if(mApp)return mApp->Procedure(hWnd, message, wParam, lParam);
+    return DefaultProcedure(hWnd,message,wParam,lParam);
+}
+LRESULT ApplicationFunctions::DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
+    return DefWindowProc(hWnd, message, wParam, lParam);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Scene.h"
@@ -205,14 +208,6 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
         ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
         break;
-    case WM_LBUTTONDOWN:
-    case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_RBUTTONUP:
-    case WM_MBUTTONUP:
-    case WM_MOUSEMOVE:
-
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -328,6 +323,7 @@ bool DirectXApplication::InitializeDirect3D(){
     CreateRenderTargetViewDescriptorHeap();
     CreateDepthStencilViewDescriptorHeap();
 
+    
 
     return true;
 }
