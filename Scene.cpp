@@ -26,9 +26,13 @@ void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsComm
 
 }
 
+// NumofDescriptor 에 총 Resource View 의 개수를 넣어줘야 한다 
+// 이는 메모리 최적화에 영향을 끼치는 요소로서 꼭 정확한 개수를 넣어줘야 할 필요는 없지만, Resource View 의 개수가 여기에 설정된 개수보다 많아지게 되면 안된다 
+// 따라서 미리 Resource View 의 개수를 추정하여, 적당한 값을 넣어줘야 한다. 
+// 여기에 설정된 개수가 실제로 사용하는 View 의 개수에 가까울수록 메모리 효용성이 증가한다 ( size 를 200 으로 잡고 있는 Vector 에서 100 개의 요소를 넣고 사용 할 때와, 199 개의 요소를 넣고 사용 할 때를 생각해보면 된다 ) 
 void Scene::CreateShaderResourceDescriptorHeaps(){
 	D3D12_DESCRIPTOR_HEAP_DESC ConstantBufferViewHeapDesc{};
-	ConstantBufferViewHeapDesc.NumDescriptors = 1;
+	ConstantBufferViewHeapDesc.NumDescriptors = 100;
 	ConstantBufferViewHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	ConstantBufferViewHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ConstantBufferViewHeapDesc.NodeMask = 0;
@@ -36,40 +40,17 @@ void Scene::CreateShaderResourceDescriptorHeaps(){
 }
 
 void Scene::CreateConstantBuffers(){
-	//UINT ElementByteSize = CalcConstantBufferByteSize(sizeof(ObjectConstants));
-
-
-	//CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_UPLOAD);
-	//CD3DX12_RESOURCE_DESC ConstantResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize);
-	//ThrowIfFailed(
-	//	m_d3dDevice->CreateCommittedResource(
-	//		&HeapProperties,
-	//		D3D12_HEAP_FLAG_NONE,
-	//		&ConstantResourceDesc,
-	//		D3D12_RESOURCE_STATE_GENERIC_READ,
-	//		nullptr,
-	//		IID_PPV_ARGS(m_d3dConstantBuffer.GetAddressOf()))
-	//);
-	CBuffer = std::make_unique<ConstantBuffer::DescriptorTable<ObjectConstants>>(m_d3dDevice,m_d3dShaderResourceDescriptorHeap);
-
-
-	//D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferAdress = m_d3dConstantBuffer->GetGPUVirtualAddress();
-
-	//D3D12_CONSTANT_BUFFER_VIEW_DESC ConstantBufferViewDesc{};
-	//ConstantBufferViewDesc.BufferLocation = ConstantBufferAdress;
-	//ConstantBufferViewDesc.SizeInBytes = CalcConstantBufferByteSize(sizeof(ObjectConstants));
-
-	//m_d3dDevice->CreateConstantBufferView(&ConstantBufferViewDesc, m_d3dShaderResourceDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	CBuffer = std::make_unique<ConstantBuffer::DescriptorTable<ObjectConstants>>(m_d3dDevice,m_d3dShaderResourceDescriptorHeap,0);
 }
 
+
+// TODO : Root Signature 의 일반화에 대하여... 
 void Scene::CreateRootSignature(){
 	CD3DX12_ROOT_PARAMETER RootParameter[2];
-
-	CD3DX12_DESCRIPTOR_RANGE ConstantBufferDescriptorTable;
-	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,1,0);
-	
-	
+	CD3DX12_DESCRIPTOR_RANGE ConstantBufferDescriptorTable{};
+	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 	RootParameter[0].InitAsDescriptorTable(1,&ConstantBufferDescriptorTable); // Root Descriptor
+
 	RootParameter[1].InitAsConstants(16, 1); // Root Constant 
 
 	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(2, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -245,7 +226,7 @@ void Scene::Render(){
 	CBuffer->CopyData(cp);
 
 	DirectX::XMFLOAT4X4 m{Identity};
-	CBuffer->BindCommandList(m_d3dCommandList, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0);
+	CBuffer->BindCommandList(m_d3dCommandList, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
