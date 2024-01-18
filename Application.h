@@ -12,6 +12,16 @@ protected:
 	HINSTANCE m_hInstance{};
 	HACCEL m_hHaccelTable{};
 	MSG m_mMsg{};
+
+	bool m_bPaused{ false };
+	bool m_bMinimized{ false };
+	bool m_bMaximized{ false };
+	bool m_bResizing{ false };
+	bool m_b4xMsaaState{ false };
+
+	int m_nClientWidth{ FRAMEBUFFER_WIDTH };
+	int m_nClientHeight{ FRAMEBUFFER_HEIGHT };
+
 public:
 	virtual LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void Loop();
@@ -20,10 +30,12 @@ public:
 public:
 	HINSTANCE GetHandleInstance() const { return m_hInstance; };
 	HWND GetWindowHandle() const { return m_hWnd; };
+	ApplicationFunctions::WindowInfo GetWindowInfo() const;
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace ApplicationFunctions {
 	bool SetMainApplication(Application* app);
+	WindowInfo GetMainApplicationInfo();
 	LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 }
@@ -45,19 +57,13 @@ public:
 	virtual void Update(float fDeltaTime) override;
 	virtual void Render() override;
 private:
-	bool m_bPaused{ false };
-	bool m_bMinimized{ false };
-	bool m_bMaximized{ false };
-	bool m_bResizing{ false };
-	bool m_b4xMsaaState{ false };
-
-	UINT m_n4xMsaaQuality{ 0 };
-
 	std::unique_ptr<Timer> m_timer{ nullptr };
 
 	ComPtr<IDXGIFactory4> m_dxgiFactory{};
 	ComPtr<IDXGISwapChain> m_dxgiSwapChain{};
 	ComPtr<ID3D12Device> m_d3dDevice{};
+
+	UINT m_n4xMsaaQuality{ 0 };
 
 	ComPtr<ID3D12Fence> m_d3dFence{};
 	UINT64 m_nCurrentFence{ 0 };
@@ -84,9 +90,6 @@ private:
 	DXGI_FORMAT m_dxgiDepthStencilFormat{ DXGI_FORMAT_D24_UNORM_S8_UINT };
 
 	D3D_FEATURE_LEVEL m_d3dDirectXFeatureLevel{ D3D_FEATURE_LEVEL_11_0 };
-
-	int m_nClientWidth{ FRAMEBUFFER_WIDTH };
-	int m_nClientHeight{ FRAMEBUFFER_HEIGHT };
 
 	std::unique_ptr<Scene> m_pScene{ nullptr };
 private:

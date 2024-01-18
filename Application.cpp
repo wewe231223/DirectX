@@ -91,12 +91,21 @@ void Application::Loop(){
         }
     }
 }
+ApplicationFunctions::WindowInfo Application::GetWindowInfo() const{
+    return ApplicationFunctions::WindowInfo{m_hWnd,m_nClientWidth,m_nClientHeight,m_bPaused,m_bMinimized,m_bMaximized};
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool ApplicationFunctions::SetMainApplication(Application* app){
     if (mApp) return false;
     mApp = app;
     return true;
 }
+
+ApplicationFunctions::WindowInfo ApplicationFunctions::GetMainApplicationInfo(){
+    if(!mApp) return ApplicationFunctions::WindowInfo();
+    return mApp->GetWindowInfo();
+}
+
 LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     if(mApp)return mApp->Procedure(hWnd, message, wParam, lParam);
     return DefaultProcedure(hWnd,message,wParam,lParam);
@@ -104,8 +113,6 @@ LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, 
 LRESULT ApplicationFunctions::DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-UINT kWindowWidth = FRAMEBUFFER_WIDTH;
-UINT kWindowHeight = FRAMEBUFFER_HEIGHT;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Scene.h"
 

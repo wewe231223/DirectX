@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Camera.h"
 
-extern UINT kWindowWidth;
-extern UINT kWindowHeight;
+namespace ApplicationFunctions {
+	extern WindowInfo GetMainApplicationInfo();
+}
 
 Camera::Camera(){
 

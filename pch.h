@@ -58,9 +58,21 @@ struct _tagVertex {
 	DirectX::XMFLOAT2 Tex{};		// offset = 24 byte 
 	DirectX::XMFLOAT4 Color{};		// offset = 32 byte 
 };									// total 48 byte 
-
 using Vertex = _tagVertex;
 
+namespace ApplicationFunctions {
+	struct _tagWindowInfo {
+		HWND hWnd{};
+		int Width{};
+		int Height{};
+
+		bool Paused{};
+		bool Minimized{};
+		bool Maximized{};
+	};
+
+	using WindowInfo = _tagWindowInfo;
+}
 
 
 #include "resource.h"
