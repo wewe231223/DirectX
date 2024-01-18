@@ -73,8 +73,7 @@ namespace ApplicationFunctions {
 
 	using WindowInfo = _tagWindowInfo;
 }
-
-
+ 
 #include "resource.h"
 #include "Util.h"
 #include "ConstantBuffer.h"

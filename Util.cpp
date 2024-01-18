@@ -134,4 +134,10 @@ std::wstring Exeption::ToString() const{
     return m_wsFunctionName + L"\nFailed in : " + wsFileName + L"\nLine : " + std::to_wstring(m_nLineNumber) + L"\nError : " + errmsg;
 }
 
+namespace ApplicationFunctions {
+    extern WindowInfo GetMainApplicationInfo();
 
+    WindowInfo GetMainApplicationWindowInfo(){
+        return GetMainApplicationInfo();
+    }
+}

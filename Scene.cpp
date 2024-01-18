@@ -23,7 +23,8 @@ void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsComm
 	CreatePipeLineStateObject();
 	CreateGeometry();
 
-
+	m_camera = std::make_unique<Camera>(DirectX::XMVECTOR{ 10.f,10.f,10.f,1.f }, DirectX::XMVECTOR{ 0.f,0.f,0.f });
+	m_camera->InitBuffer(d3dDevice, 0);
 }
 
 // NumofDescriptor 에 총 Resource View 의 개수를 넣어줘야 한다 
@@ -40,16 +41,14 @@ void Scene::CreateShaderResourceDescriptorHeaps(){
 }
 
 void Scene::CreateConstantBuffers(){
-	CBuffer = std::make_unique<ConstantBuffer::DescriptorTable<ObjectConstants>>(m_d3dDevice,m_d3dShaderResourceDescriptorHeap,0);
 }
 
 
 // TODO : Root Signature 의 일반화에 대하여... 
 void Scene::CreateRootSignature(){
 	CD3DX12_ROOT_PARAMETER RootParameter[2];
-	CD3DX12_DESCRIPTOR_RANGE ConstantBufferDescriptorTable{};
-	ConstantBufferDescriptorTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-	RootParameter[0].InitAsDescriptorTable(1,&ConstantBufferDescriptorTable); // Root Descriptor
+
+	RootParameter[0].InitAsConstantBufferView(0); // Root Descriptor
 
 	RootParameter[1].InitAsConstants(16, 1); // Root Constant 
 
@@ -223,14 +222,12 @@ void Scene::Render(){
 	ObjectConstants cp{};
 	
 	DirectX::XMStoreFloat4x4(&cp.WorldViewProjection, DirectX::XMMatrixTranspose(VP));
-	CBuffer->CopyData(cp);
 
 	DirectX::XMFLOAT4X4 m{Identity};
-	CBuffer->BindCommandList(m_d3dCommandList, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	m_camera->Render(m_d3dCommandList);
 	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//m_d3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dShaderResourceDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 	// XMMatrix 자료형과 XMFloat4x4의 행렬 방향은 반대로 되어있다. 따라서 해당 자료형을 사용할 때에는 행렬을 Transpose 해서 사용해야한다

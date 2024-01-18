@@ -4,6 +4,7 @@ struct ObjectConstants {
 	DirectX::XMFLOAT4X4 WorldViewProjection{ Identity };
 };
 class Mesh;
+class Camera;
 
 class Scene{
 public:
@@ -29,13 +30,14 @@ private:
 	bool m_b4xMsaa{ false };
 	UINT m_n4xMsaaQuality{ 0 };
 
+	std::unique_ptr<Camera> m_camera{ nullptr };
 	std::unique_ptr<Mesh> mesh{ nullptr };
+
 
 	D3D12_VERTEX_BUFFER_VIEW TestVertexBuffer{}; // VertexBufferView 
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 
 	ObjectConstants* TestConstant{}; // ConstantBuffer Pointer 
 
-	std::unique_ptr<ConstantBuffer::DescriptorTable<ObjectConstants>> CBuffer{ nullptr };
 
 private:
 	virtual void CreateShaderResourceDescriptorHeaps();

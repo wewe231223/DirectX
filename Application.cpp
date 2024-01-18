@@ -102,7 +102,7 @@ bool ApplicationFunctions::SetMainApplication(Application* app){
 }
 
 ApplicationFunctions::WindowInfo ApplicationFunctions::GetMainApplicationInfo(){
-    if(!mApp) return ApplicationFunctions::WindowInfo();
+    if (!mApp) return ApplicationFunctions::WindowInfo{ HWND(), FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false, false, false };
     return mApp->GetWindowInfo();
 }
 
