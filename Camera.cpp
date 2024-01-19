@@ -38,8 +38,33 @@ void Camera::Render(ComPtr<ID3D12GraphicsCommandList> d3dCommandList){
 	m_pCameraBuffer->BindCommandList(d3dCommandList);
 	m_pCameraBuffer->CopyData(m_cameraData);
 }
+constexpr float CameraSpeed = 30.f;
 
 void Camera::Update(float fDeltaTime){
+
+	if (INPUT->GetKey(DIK_W) == KEY_STATE::PRESS) {
+		m_vEye = DirectX::XMVectorSubtract(m_vEye, DirectX::XMVectorScale(m_vBasisZ, fDeltaTime * CameraSpeed));
+	}
+	if (INPUT->GetKey(DIK_S) == KEY_STATE::PRESS) {
+		m_vEye = DirectX::XMVectorAdd(m_vEye, DirectX::XMVectorScale(m_vBasisZ, fDeltaTime * CameraSpeed));
+	}
+	if (INPUT->GetKey(DIK_D) == KEY_STATE::PRESS) {
+		m_vEye = DirectX::XMVectorSubtract(m_vEye, DirectX::XMVectorScale(m_vBasisX, fDeltaTime * CameraSpeed));
+	}
+	if (INPUT->GetKey(DIK_A) == KEY_STATE::PRESS) {
+		m_vEye = DirectX::XMVectorAdd(m_vEye, DirectX::XMVectorScale(m_vBasisX, fDeltaTime * CameraSpeed));
+	}
+	if (INPUT->GetKey(DIK_Q) == KEY_STATE::PRESS) {
+		m_vEye = DirectX::XMVectorSubtract(m_vEye, DirectX::XMVectorScale(m_vBasisY, fDeltaTime * CameraSpeed));
+	}
+	if (INPUT->GetKey(DIK_E) == KEY_STATE::PRESS) {
+		m_vEye = DirectX::XMVectorAdd(m_vEye, DirectX::XMVectorScale(m_vBasisY, fDeltaTime * CameraSpeed));
+	}
+
+
+
+
+
 	LONG DeltaMouseX = INPUT->GetDeltaMouseX();
 	LONG DeltaMouseY = INPUT->GetDeltaMouseY();
 

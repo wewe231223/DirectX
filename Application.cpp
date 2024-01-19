@@ -337,9 +337,6 @@ bool DirectXApplication::InitializeDirect3D(){
     CreateSwapChain();
     CreateRenderTargetViewDescriptorHeap();
     CreateDepthStencilViewDescriptorHeap();
-
-    
-
     return true;
 }
 
@@ -523,21 +520,13 @@ void DirectXApplication::LogAdapters(){
                 Text += L"Refresh = " + std::to_wstring(n) + L"/" + std::to_wstring(d) + L"\n";
 
                 ::OutputDebugString(Text.c_str());
-                
-                
             }
-
             ReleaseCom(Output);
             ++j;
         }
-
-
-
-
         AdapterList.push_back(Adapter);
         ++i;
     }
-
     for (size_t k = 0; k < AdapterList.size(); ++k) {
         ReleaseCom(AdapterList[k]);
     }
