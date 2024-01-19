@@ -68,4 +68,5 @@ namespace ApplicationUtil {
 	const WindowInfo* GetMainApplicationWindowInfo();
 	void ClipMouse(const WindowInfo* cpWindowInfo);
 	void FreeMouse();
+	void ShowCursor(bool bState);
 }

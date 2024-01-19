@@ -159,10 +159,27 @@ namespace ApplicationUtil {
         ClientRect.bottom = RightBottom.y;
 
         ::ClipCursor(&ClientRect);
+        ApplicationUtil::ShowCursor(false);
     }
 
     void FreeMouse(){
         ::ClipCursor(NULL);
+        ApplicationUtil::ShowCursor(true);
+    }
+
+    void ShowCursor(bool bState){
+        static int ref = 0;
+        if (bState) {
+            while (!(ref == 0)) {
+                ::ShowCursor(true);
+                ++ref;
+            }
+        }
+        else {
+            ::ShowCursor(false);
+            --ref;
+        }
+
     }
 
 }

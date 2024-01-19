@@ -22,7 +22,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         DefaultApp = std::make_unique<DirectXApplication>(hInstance,WindowName);
         ApplicationUtil::SetMainApplication(DefaultApp.get());
         DefaultApp->Initialize();
-        ::ShowCursor(false);
         DefaultApp->Loop();
     }
     catch (Exeption& e) {
