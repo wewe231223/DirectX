@@ -45,8 +45,8 @@ void Camera::Update(float fDeltaTime){
 
 	if (DeltaMouseX != 0 or DeltaMouseY != 0) {
 		
-		DirectX::XMMATRIX XRotate =  DirectX::XMMatrixRotationAxis(m_vBasisX, Vector::Math::Radians(static_cast<float>(-DeltaMouseY) * 0.5f));
-		DirectX::XMMATRIX YRotate = DirectX::XMMatrixRotationAxis(m_vBasisY, Vector::Math::Radians(static_cast<float>(-DeltaMouseX) * 0.5f));
+		DirectX::XMMATRIX XRotate =  DirectX::XMMatrixRotationAxis(m_vBasisX, Vector::Math::Radians(static_cast<float>(-DeltaMouseY) * 0.1f));
+		DirectX::XMMATRIX YRotate = DirectX::XMMatrixRotationAxis(m_vBasisY, Vector::Math::Radians(static_cast<float>(DeltaMouseX) * 0.1f));
 
 		m_vAt = DirectX::XMVector3Transform(m_vAt, XRotate);
 		m_vAt = DirectX::XMVector3Transform(m_vAt, YRotate);
