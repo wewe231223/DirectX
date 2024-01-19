@@ -56,15 +56,10 @@ void Camera::Update(float fDeltaTime){
 		m_vBasisY = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_vBasisZ, m_vBasisX));
 
 	}
-
 	if (m_pMainWindowInfo->Resized) {
+		m_fAspect = static_cast<float>(m_pMainWindowInfo->Width) / static_cast<float>(m_pMainWindowInfo->Height);
 		m_mProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(m_fPov), m_fAspect, m_fNearZ, m_fFarZ);
 	}
-
 	m_mView = DirectX::XMMatrixLookAtLH(m_vEye, DirectX::XMVectorAdd(m_vEye, m_vAt), m_vUp);
 	DirectX::XMStoreFloat4x4(&m_cameraData.ViewProjection, DirectX::XMMatrixTranspose(m_mView * m_mProjection));
-	//OutputDebugString(std::to_wstring(DeltaMouseX).c_str());
-	//OutputDebugString(L" ");
-	//OutputDebugString(std::to_wstring(DeltaMouseY).c_str());
-	//OutputDebugString(L"\n");
 }

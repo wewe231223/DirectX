@@ -16,10 +16,6 @@ protected:
 
 	bool m_bResizing{ false };
 	bool m_b4xMsaaState{ false };
-
-	int m_nClientWidth{ FRAMEBUFFER_WIDTH };
-	int m_nClientHeight{ FRAMEBUFFER_HEIGHT };
-
 public:
 	virtual LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void Loop();

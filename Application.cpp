@@ -147,9 +147,8 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         break;
     case WM_SIZE:
         m_windowInfo.Resized = true;
-        m_nClientWidth = LOWORD(lParam);
-        m_nClientHeight = HIWORD(lParam);
-
+        m_windowInfo.Width = LOWORD(lParam);
+        m_windowInfo.Height = HIWORD(lParam);
         if (m_d3dDevice) {
             switch(wParam){
             case SIZE_MINIMIZED:
@@ -358,8 +357,8 @@ void DirectXApplication::CreateSwapChain(){
     m_dxgiSwapChain.Reset();
 
     DXGI_SWAP_CHAIN_DESC Desc;
-    Desc.BufferDesc.Width = m_nClientWidth;
-    Desc.BufferDesc.Height = m_nClientHeight;
+    Desc.BufferDesc.Width = m_windowInfo.Width;
+    Desc.BufferDesc.Height = m_windowInfo.Height;
     Desc.BufferDesc.RefreshRate.Numerator = 60;
     Desc.BufferDesc.RefreshRate.Denominator = 1;
     Desc.BufferDesc.Format = m_dxgiBackBufferFormat;
@@ -405,7 +404,7 @@ bool DirectXApplication::Resize(){
     }
     m_d3dDepthStencilBuffer.Reset();
 
-    ThrowIfFailed(m_dxgiSwapChain->ResizeBuffers(SWAPCHAINBUFFERCOUNT, m_nClientWidth, m_nClientHeight, m_dxgiBackBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+    ThrowIfFailed(m_dxgiSwapChain->ResizeBuffers(SWAPCHAINBUFFERCOUNT, m_windowInfo.Width, m_windowInfo.Height, m_dxgiBackBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
     m_nCurrentBackBuffer = 0;
 
@@ -419,8 +418,8 @@ bool DirectXApplication::Resize(){
     D3D12_RESOURCE_DESC DepthStencilDesc;
     DepthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     DepthStencilDesc.Alignment = 0;
-    DepthStencilDesc.Width = m_nClientWidth;
-    DepthStencilDesc.Height = m_nClientHeight;
+    DepthStencilDesc.Width = m_windowInfo.Width;
+    DepthStencilDesc.Height = m_windowInfo.Height;
     DepthStencilDesc.DepthOrArraySize = 1;
     DepthStencilDesc.MipLevels = 1;
     DepthStencilDesc.Format = m_dxgiDepthStencilFormat;
@@ -458,12 +457,12 @@ bool DirectXApplication::Resize(){
 
     m_d3dScreenViewPort.TopLeftX = 0;
     m_d3dScreenViewPort.TopLeftY = 0;
-    m_d3dScreenViewPort.Width = static_cast<float>(m_nClientWidth);
-    m_d3dScreenViewPort.Height = static_cast<float>(m_nClientHeight);
+    m_d3dScreenViewPort.Width = static_cast<float>(m_windowInfo.Width);
+    m_d3dScreenViewPort.Height = static_cast<float>(m_windowInfo.Height);
     m_d3dScreenViewPort.MaxDepth = 0.f;
     m_d3dScreenViewPort.MinDepth = 1.f;
 
-    m_d3dSissorRect = D3D12_RECT{ 0,0,m_nClientWidth,m_nClientHeight };
+    m_d3dSissorRect = D3D12_RECT{ 0,0,m_windowInfo.Width,m_windowInfo.Height};
 
     if (m_windowInfo.MouseCliped) {
         ApplicationUtil::ClipMouse(&m_windowInfo);
