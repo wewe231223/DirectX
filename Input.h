@@ -58,6 +58,8 @@ public:
 	const KEY_STATE GetKey(int key) const;
 	const KEY_STATE GetMouseButton(int key) const;
 	const KEY_STATE GetMouseButton(MOUSE_BUTTON key) const;
+	const LONG GetDeltaMouseX() const;
+	const LONG GetDeltaMouseY() const;
 public:
 	void Init(HWND hWnd,HINSTANCE Instance);
 	void Update();

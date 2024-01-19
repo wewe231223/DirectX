@@ -20,7 +20,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LPCWSTR WindowName = L"Application";
     try {
         DefaultApp = std::make_unique<DirectXApplication>(hInstance,WindowName);
-        ApplicationFunctions::SetMainApplication(DefaultApp.get());
+        ApplicationUtil::SetMainApplication(DefaultApp.get());
+        DefaultApp->Initialize();
         DefaultApp->Loop();
     }
     catch (Exeption& e) {

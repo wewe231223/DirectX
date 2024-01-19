@@ -23,7 +23,9 @@ void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsComm
 	CreatePipeLineStateObject();
 	CreateGeometry();
 
-	m_camera = std::make_unique<Camera>(DirectX::XMVECTOR{ 10.f,10.f,10.f,1.f }, DirectX::XMVECTOR{ 0.f,0.f,0.f });
+	m_windowInfo = ApplicationUtil::GetMainApplicationWindowInfo();
+
+	m_camera = std::make_unique<Camera>(m_windowInfo,DirectX::XMVECTOR{ 10.f,10.f,10.f,1.f }, DirectX::XMVECTOR{ 0.f,0.f,0.f });
 	m_camera->InitBuffer(d3dDevice, 0);
 }
 
@@ -49,7 +51,6 @@ void Scene::CreateRootSignature(){
 	CD3DX12_ROOT_PARAMETER RootParameter[2];
 
 	RootParameter[0].InitAsConstantBufferView(0); // Root Descriptor
-
 	RootParameter[1].InitAsConstants(16, 1); // Root Constant 
 
 	CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(2, RootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -193,8 +194,7 @@ void Scene::CreatePipeLineStateObject(){
 	ThrowIfFailed(m_d3dDevice->CreateGraphicsPipelineState(&PipeLineStateObjectDesc, IID_PPV_ARGS(&m_d3dPipeLineStateObject)));
 }
 
-ComPtr<ID3D12PipelineState> Scene::GetPipeLineStateObject() const
-{
+ComPtr<ID3D12PipelineState> Scene::GetPipeLineStateObject() const {
 	return m_d3dPipeLineStateObject;
 }
 
@@ -204,24 +204,9 @@ void Scene::Set4xMsaaState(bool b4xMsaa, UINT n4xMsaaQuality){
 }
 
 void Scene::Render(){
-
-	DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.25f * 3.141582f, 1920.f / 1080.f, 1.f, 1000.f);
-
-	DirectX::XMVECTOR eye = DirectX::XMVectorSet(10.f, 10.f, 10.f, 1.f);
-	DirectX::XMVECTOR at = DirectX::XMVectorZero();
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
-
-	DirectX::XMMATRIX V = DirectX::XMMatrixLookAtLH(eye, at, up);
-
-	DirectX::XMMATRIX VP = V * P;
 	ID3D12DescriptorHeap* DescriptorHeaps[] = { m_d3dShaderResourceDescriptorHeap.Get() };
 	m_d3dCommandList->SetGraphicsRootSignature(m_d3dRootSignature.Get());
 	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
-
-
-	ObjectConstants cp{};
-	
-	DirectX::XMStoreFloat4x4(&cp.WorldViewProjection, DirectX::XMMatrixTranspose(VP));
 
 	DirectX::XMFLOAT4X4 m{Identity};
 	m_camera->Render(m_d3dCommandList);
@@ -235,5 +220,9 @@ void Scene::Render(){
 	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
+}
+
+void Scene::Update(float fDeltaTime){
+	//m_camera->Update(fDeltaTime);
 }
 	

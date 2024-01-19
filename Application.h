@@ -8,14 +8,12 @@ public:
 	Application(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW* pWindowProperties);
 	virtual ~Application() {};
 protected:
-	HWND m_hWnd{};
+	ApplicationUtil::WindowInfo m_windowInfo{};
+
 	HINSTANCE m_hInstance{};
 	HACCEL m_hHaccelTable{};
 	MSG m_mMsg{};
 
-	bool m_bPaused{ false };
-	bool m_bMinimized{ false };
-	bool m_bMaximized{ false };
 	bool m_bResizing{ false };
 	bool m_b4xMsaaState{ false };
 
@@ -29,13 +27,13 @@ public:
 	virtual void Render() {};
 public:
 	HINSTANCE GetHandleInstance() const { return m_hInstance; };
-	HWND GetWindowHandle() const { return m_hWnd; };
-	ApplicationFunctions::WindowInfo GetWindowInfo() const;
+	HWND GetWindowHandle() const { return m_windowInfo.hWnd; };
+	const ApplicationUtil::WindowInfo* GetWindowInfo() const;
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-namespace ApplicationFunctions {
+namespace ApplicationUtil {
 	bool SetMainApplication(Application* app);
-	WindowInfo GetMainApplicationInfo();
+	const WindowInfo* GetMainApplicationInfo();
 	LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 }
@@ -53,6 +51,7 @@ public:
 public:
 	virtual LRESULT CALLBACK Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
 public:
+	void Initialize();
 	virtual void Loop() override;
 	virtual void Update(float fDeltaTime) override;
 	virtual void Render() override;
@@ -93,7 +92,6 @@ private:
 
 	std::unique_ptr<Scene> m_pScene{ nullptr };
 private:
-	bool Initialize();
 	bool InitializeDirect3D();
 	void CreateCommandList();
 	void CreateSwapChain();

@@ -12,16 +12,16 @@ Application::Application(HINSTANCE hInstance,LPCWSTR wcpWindowName){
     ::LoadStringW(m_hInstance, IDC_DIRECTX, ClassName, 100);
     WNDCLASSEXW wcex = ::GetDefaultWindowProperties(m_hInstance);
     wcex.lpszClassName = ClassName;
-    wcex.lpfnWndProc = ApplicationFunctions::Procedure;
+    wcex.lpfnWndProc = ApplicationUtil::Procedure;
     ::RegisterClassExW(&wcex);
-    m_hWnd = ::CreateWindowExW(0L, ClassName, wcpWindowName, WS_OVERLAPPEDWINDOW,
+    m_windowInfo.hWnd = ::CreateWindowExW(0L, ClassName, wcpWindowName, WS_OVERLAPPEDWINDOW,
         100, 100, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 
         nullptr, nullptr, m_hInstance, nullptr);
-    if (!m_hWnd) {
+    if (!m_windowInfo.hWnd) {
         exit(-1);
     }
-    ShowWindow(m_hWnd, SW_SHOW);
-    UpdateWindow(m_hWnd);
+    ShowWindow(m_windowInfo.hWnd, SW_SHOW);
+    UpdateWindow(m_windowInfo.hWnd);
 }
 
 Application::Application(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW* pWindowProperties){
@@ -29,14 +29,14 @@ Application::Application(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW
     WCHAR ClassName[100]{};
     ::LoadStringW(m_hInstance, IDC_DIRECTX, ClassName, 100);
     ::RegisterClassExW(pWindowProperties);
-    m_hWnd = ::CreateWindowExW(0L, ClassName, wcpWindowName, WS_OVERLAPPEDWINDOW,
+    m_windowInfo.hWnd = ::CreateWindowExW(0L, ClassName, wcpWindowName, WS_OVERLAPPEDWINDOW,
         100, 100, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT,
         nullptr, nullptr, m_hInstance, nullptr);
-    if (!m_hWnd) {
+    if (!m_windowInfo.hWnd) {
         exit(-1);
     }
-    ShowWindow(m_hWnd, SW_SHOW);
-    UpdateWindow(m_hWnd);
+    ShowWindow(m_windowInfo.hWnd, SW_SHOW);
+    UpdateWindow(m_windowInfo.hWnd);
 }
 
 LRESULT Application::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
@@ -91,46 +91,33 @@ void Application::Loop(){
         }
     }
 }
-ApplicationFunctions::WindowInfo Application::GetWindowInfo() const{
-    return ApplicationFunctions::WindowInfo{m_hWnd,m_nClientWidth,m_nClientHeight,m_bPaused,m_bMinimized,m_bMaximized};
+const ApplicationUtil::WindowInfo* Application::GetWindowInfo() const{
+    return &m_windowInfo;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool ApplicationFunctions::SetMainApplication(Application* app){
+bool ApplicationUtil::SetMainApplication(Application* app){
     if (mApp) return false;
     mApp = app;
     return true;
 }
 
-ApplicationFunctions::WindowInfo ApplicationFunctions::GetMainApplicationInfo(){
-    if (!mApp) return ApplicationFunctions::WindowInfo{ HWND(), FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false, false, false };
+const ApplicationUtil::WindowInfo* ApplicationUtil::GetMainApplicationInfo(){
+    if (!mApp) return nullptr;
     return mApp->GetWindowInfo();
 }
 
-LRESULT ApplicationFunctions::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
+LRESULT ApplicationUtil::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     if(mApp)return mApp->Procedure(hWnd, message, wParam, lParam);
     return DefaultProcedure(hWnd,message,wParam,lParam);
 }
-LRESULT ApplicationFunctions::DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
+LRESULT ApplicationUtil::DefaultProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Scene.h"
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName): Application(hInstance, wcpWindowName) {
-    m_timer = std::make_unique<Timer>();
-    m_timer->Reset();
-    m_timer->Start();
-    INPUT->Init(m_hWnd,m_hInstance);
-    Initialize();
-    ThrowIfFailed(m_d3dCommandList->Reset(m_d3dCommandAllocator.Get(), nullptr));
-    m_pScene = std::make_unique<Scene>();
-    m_pScene->Initialize(m_d3dDevice, m_d3dCommandList);
-    m_pScene->Set4xMsaaState(m_b4xMsaaState, m_n4xMsaaQuality);
 
-    ThrowIfFailed(m_d3dCommandList->Close());
-    ID3D12CommandList* CommandLists[] = { m_d3dCommandList.Get() };
-    m_d3dCommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
-    FlushCommandQueue();
 }
 
 DirectXApplication::DirectXApplication(HINSTANCE hInstance, LPCWSTR wcpWindowName, WNDCLASSEXW pWindowProperties){
@@ -146,12 +133,12 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
     switch (message) {
     case WM_ACTIVATE:
         if (LOWORD(wParam) == WA_INACTIVE) {
-            m_bPaused = true;
+            m_windowInfo.Paused = true;
             m_timer->Stop();
         }
         else {
         
-            m_bPaused = false;
+            m_windowInfo.Paused = false;
             m_timer->Start();
         }
         break;
@@ -162,25 +149,25 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         if (m_d3dDevice) {
             switch(wParam){
             case SIZE_MINIMIZED:
-                m_bPaused = true;
-                m_bMinimized = true;
-                m_bMaximized = true;
+                m_windowInfo.Paused = true;
+                m_windowInfo.Minimized = true;
+                m_windowInfo.Maximized = false;
                 break;
             case SIZE_MAXIMIZED:
-                m_bPaused = false;
-                m_bMinimized = false;
-                m_bMaximized = true;
+                m_windowInfo.Paused = false;
+                m_windowInfo.Minimized = false;
+                m_windowInfo.Maximized = true;
                 Resize();
                 break;
             case SIZE_RESTORED:
-                if (m_bMinimized) {
-                    m_bPaused = false;
-                    m_bMinimized = false;
+                if (m_windowInfo.Minimized) {
+                    m_windowInfo.Paused = false;
+                    m_windowInfo.Minimized = false;
                     Resize();
                 }
-                else if (m_bMaximized) {
-                    m_bPaused = false;
-                    m_bMaximized = false;
+                else if (m_windowInfo.Maximized) {
+                    m_windowInfo.Paused = false;
+                    m_windowInfo.Maximized = false;
                     Resize();
                 }
                 else if (m_bResizing) {
@@ -196,12 +183,12 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         }
         break;
     case WM_ENTERSIZEMOVE:
-        m_bPaused = true;
+        m_windowInfo.Paused = true;
         m_bResizing = true;
         m_timer->Stop();
         break;
     case WM_EXITSIZEMOVE:
-        m_bPaused = false;
+        m_windowInfo.Paused = false;
         m_bResizing = false;
         m_timer->Start();
         // 사이즈 변경이 끝나면 버퍼를 조정 
@@ -226,6 +213,28 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
     return 0;
 }
 
+void DirectXApplication::Initialize(){
+    m_timer = std::make_unique<Timer>();
+    m_timer->Reset();
+    m_timer->Start();
+    INPUT->Init(m_windowInfo.hWnd, m_hInstance);
+
+    if (!InitializeDirect3D()) {
+        return;
+    }
+    Resize();
+
+    ThrowIfFailed(m_d3dCommandList->Reset(m_d3dCommandAllocator.Get(), nullptr));
+    m_pScene = std::make_unique<Scene>();
+    m_pScene->Initialize(m_d3dDevice, m_d3dCommandList);
+    m_pScene->Set4xMsaaState(m_b4xMsaaState, m_n4xMsaaQuality);
+
+    ThrowIfFailed(m_d3dCommandList->Close());
+    ID3D12CommandList* CommandLists[] = { m_d3dCommandList.Get() };
+    m_d3dCommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
+    FlushCommandQueue();
+}
+
 void DirectXApplication::Loop(){
 //   ThrowIfFailed(E_FAIL);
     while (m_mMsg.message != WM_QUIT) {
@@ -243,8 +252,9 @@ void DirectXApplication::Loop(){
 
 void DirectXApplication::Update(float fDeltaTime){
     m_timer->Update();
-    m_timer->SetFPSWindowTitle(m_hWnd);
+    m_timer->SetFPSWindowTitle(m_windowInfo.hWnd);
     INPUT->Update();
+    m_pScene->Update(m_timer->GetDeltaTime());
 }
 
 void DirectXApplication::Render(){
@@ -280,14 +290,6 @@ void DirectXApplication::Render(){
     m_nCurrentBackBuffer = (m_nCurrentBackBuffer + 1) % SWAPCHAINBUFFERCOUNT;
     FlushCommandQueue();
     
-}
-
-bool DirectXApplication::Initialize(){
-    if (!InitializeDirect3D()) {
-        return false;
-    }
-    Resize();
-    return true;
 }
 
 bool DirectXApplication::InitializeDirect3D(){
@@ -362,7 +364,7 @@ void DirectXApplication::CreateSwapChain(){
     Desc.SampleDesc.Quality = m_b4xMsaaState ? (m_n4xMsaaQuality - 1) : 0;
     Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     Desc.BufferCount = SWAPCHAINBUFFERCOUNT;
-    Desc.OutputWindow = m_hWnd;
+    Desc.OutputWindow = m_windowInfo.hWnd;
     Desc.Windowed = true;
     Desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     Desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;

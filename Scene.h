@@ -38,6 +38,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW TestIndexBuffer{}; // VertexBufferView 
 	ObjectConstants* TestConstant{}; // ConstantBuffer Pointer 
 
+	const ApplicationUtil::WindowInfo* m_windowInfo{ nullptr };
 
 private:
 	virtual void CreateShaderResourceDescriptorHeaps();
@@ -51,7 +52,7 @@ private:
 public:
 	ComPtr<ID3D12PipelineState> GetPipeLineStateObject() const ;
 	void Set4xMsaaState(bool b4xMsaa, UINT n4xMsaaQuality);
-	void Render();
-	
+	virtual void Render();
+	virtual void Update(float fDeltaTime);
 };	
 

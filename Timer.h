@@ -18,8 +18,8 @@ private:
 	int m_nFrameCount{ 0 };
 
 public:
-	float TimeElapsed() const;
-	float DeltaTime() const;
+	float GetTimeElapsed() const;
+	float GetDeltaTime() const;
 
 	void Reset();
 	void Start();

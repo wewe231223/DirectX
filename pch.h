@@ -60,15 +60,15 @@ struct _tagVertex {
 };									// total 48 byte 
 using Vertex = _tagVertex;
 
-namespace ApplicationFunctions {
+namespace ApplicationUtil {
 	struct _tagWindowInfo {
 		HWND hWnd{};
-		int Width{};
-		int Height{};
+		int Width{ FRAMEBUFFER_WIDTH };
+		int Height{ FRAMEBUFFER_HEIGHT };
 
-		bool Paused{};
-		bool Minimized{};
-		bool Maximized{};
+		bool Paused{ false };
+		bool Minimized{ false };
+		bool Maximized{ false };
 	};
 
 	using WindowInfo = _tagWindowInfo;

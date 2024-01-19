@@ -7,7 +7,7 @@ Timer::Timer(){
 	m_fSecondsPerCount = 1.f / static_cast<float>(CountsPerSecond);
 }
 
-float Timer::TimeElapsed() const{
+float Timer::GetTimeElapsed() const{
 	if (m_bStopped) {
 		// 멈춰있는 경우 지나간 시간은 제외한다 
 		return static_cast<float>(((m_nStopedTime - m_nPausedTime) - m_nBaseTime)) * m_fSecondsPerCount;
@@ -18,7 +18,7 @@ float Timer::TimeElapsed() const{
 	}
 }
 
-float Timer::DeltaTime() const{
+float Timer::GetDeltaTime() const{
 	return m_fDeltaTime;
 }
 
@@ -74,7 +74,7 @@ void Timer::SetFPSWindowTitle(HWND hWnd){
 
 	m_nFrameCount++;
 
-	if (TimeElapsed() - m_fFpsTimeElapsed >= 1.f) {
+	if (GetTimeElapsed() - m_fFpsTimeElapsed >= 1.f) {
 		float fps = (float)m_nFrameCount;
 
 		std::wstring FpsStr = std::to_wstring(fps);

@@ -26,6 +26,14 @@ const KEY_STATE Input::GetMouseButton(MOUSE_BUTTON key) const{
 	return m_mouseState[static_cast<int>(key)];
 }
 
+const LONG Input::GetDeltaMouseX() const {
+	return m_nDeltaMouseX;
+}
+
+const LONG Input::GetDeltaMouseY() const {
+	return m_nDeltaMouseY;
+}
+
 void Input::Init(HWND hWnd, HINSTANCE Instance) {
 	m_keyboardState = new KEY_STATE[256];
 	m_mouseState = new KEY_STATE[3];
