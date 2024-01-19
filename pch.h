@@ -67,6 +67,7 @@ namespace ApplicationUtil {
 		int Height{ FRAMEBUFFER_HEIGHT };
 
 		bool Paused{ false };
+		bool Resized{ false };
 		bool Minimized{ false };
 		bool Maximized{ false };
 	};

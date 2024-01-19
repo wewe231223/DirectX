@@ -13,19 +13,19 @@ protected:
 
 	DirectX::XMVECTOR m_vEye{};
 	DirectX::XMVECTOR m_vAt{};
-	DirectX::XMVECTOR m_vUp{ 0.f,1.f,0.f };
+	DirectX::XMVECTOR m_vUp{ 0.f,1.f,0.f,0.f };
 
 	float m_fAspect{};
 	float m_fPov{};
 	float m_fNearZ{};
 	float m_fFarZ{};
 
-	DirectX::XMVECTOR m_vBasisX{ 1.f,0.f,0.f };
-	DirectX::XMVECTOR m_vBasisY{ 0.f,1.f,0.f };
-	DirectX::XMVECTOR m_vBasisZ{ 0.f,0.f,1.f };
+	DirectX::XMVECTOR m_vBasisX{ 1.f,0.f,0.f,0.f };
+	DirectX::XMVECTOR m_vBasisY{ 0.f,1.f,0.f,0.f };
+	DirectX::XMVECTOR m_vBasisZ{ 0.f,0.f,1.f,0.f };
 
-	DirectX::XMFLOAT4X4 m_mProjection{};
-	DirectX::XMFLOAT4X4 m_mView{};
+	DirectX::XMMATRIX m_mProjection{};
+	DirectX::XMMATRIX m_mView{};
 
 	std::unique_ptr<ConstantBuffer::RootDescriptorBuffer<CameraConstants>> m_pCameraBuffer{ nullptr };
 	CameraConstants m_cameraData{};

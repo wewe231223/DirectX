@@ -25,7 +25,7 @@ void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsComm
 
 	m_windowInfo = ApplicationUtil::GetMainApplicationWindowInfo();
 
-	m_camera = std::make_unique<Camera>(m_windowInfo,DirectX::XMVECTOR{ 10.f,10.f,10.f,1.f }, DirectX::XMVECTOR{ 0.f,0.f,0.f });
+	m_camera = std::make_unique<Camera>(m_windowInfo,DirectX::XMVECTOR{ 10.f,10.f,10.f }, DirectX::XMVECTOR{ 1.f,1.f,1.f });
 	m_camera->InitBuffer(d3dDevice, 0);
 }
 
@@ -180,7 +180,7 @@ void Scene::CreatePipeLineStateObject(){
 	PipeLineStateObjectDesc.VS = ::GetShaderByteCode(m_d3dVertexShader);
 	PipeLineStateObjectDesc.PS = ::GetShaderByteCode(m_d3dPixelShader);
 	PipeLineStateObjectDesc.RasterizerState = RasterizerDesc;
-	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	PipeLineStateObjectDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	PipeLineStateObjectDesc.BlendState = BlendDesc;
 	PipeLineStateObjectDesc.DepthStencilState = DepthStencilDesc;
 	PipeLineStateObjectDesc.SampleMask = UINT_MAX;
@@ -209,10 +209,12 @@ void Scene::Render(){
 	m_d3dCommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 
 	DirectX::XMFLOAT4X4 m{Identity};
-	m_camera->Render(m_d3dCommandList);
-	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
+
 	
 	::BindVertexBuffer(m_d3dCommandList, mesh->GetVertexView(), mesh->GetIndexView(), D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_camera->Render(m_d3dCommandList);
+	m_d3dCommandList->SetGraphicsRoot32BitConstants(1, 16, reinterpret_cast<void*>(&m), 0);
 	m_d3dCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 	// XMMatrix 자료형과 XMFloat4x4의 행렬 방향은 반대로 되어있다. 따라서 해당 자료형을 사용할 때에는 행렬을 Transpose 해서 사용해야한다
@@ -223,6 +225,6 @@ void Scene::Render(){
 }
 
 void Scene::Update(float fDeltaTime){
-	//m_camera->Update(fDeltaTime);
+	m_camera->Update(fDeltaTime);
 }
 	

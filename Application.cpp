@@ -143,6 +143,7 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         }
         break;
     case WM_SIZE:
+        m_windowInfo.Resized = true;
         m_nClientWidth = LOWORD(lParam);
         m_nClientHeight = HIWORD(lParam);
 
@@ -289,7 +290,8 @@ void DirectXApplication::Render(){
 
     m_nCurrentBackBuffer = (m_nCurrentBackBuffer + 1) % SWAPCHAINBUFFERCOUNT;
     FlushCommandQueue();
-    
+  
+    m_windowInfo.Resized = false;
 }
 
 bool DirectXApplication::InitializeDirect3D(){

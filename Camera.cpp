@@ -13,17 +13,16 @@ Camera::Camera(const ApplicationUtil::WindowInfo* MainWindowInfo,DirectX::XMVECT
 	m_fAspect = static_cast<float>(m_pMainWindowInfo->Width) / static_cast<float>(m_pMainWindowInfo->Height);
 	
 
-	DirectX::XMFLOAT4X4 ViewMatrix{};
-	DirectX::XMFLOAT4X4 ProjectionMatrix{};
 
-	DirectX::XMMATRIX Proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(m_fPov), m_fAspect, m_fNearZ, m_fFarZ);
-	DirectX::XMMATRIX View = DirectX::XMMatrixLookAtLH(m_vEye, m_vAt, m_vUp);
 
-	DirectX::XMStoreFloat4x4(&m_cameraData.ViewProjection,DirectX::XMMatrixTranspose( View * Proj) );
+	m_mProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(m_fPov), m_fAspect, m_fNearZ, m_fFarZ);
+	m_mView = DirectX::XMMatrixLookAtLH(m_vEye, m_vAt, m_vUp);
+
+	DirectX::XMStoreFloat4x4(&m_cameraData.ViewProjection,DirectX::XMMatrixTranspose(m_mView * m_mProjection) );
 	
 	m_vBasisZ = DirectX::XMVector3Normalize(DirectX::XMVectorNegate(m_vAt));
-	m_vBasisX = DirectX::XMVector3Normalize(DirectX::XMVector3Dot(m_vUp, m_vBasisZ));
-	m_vBasisY = DirectX::XMVector3Normalize(DirectX::XMVector3Dot(m_vBasisZ, m_vBasisX));
+	m_vBasisX = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_vUp, m_vBasisZ));
+	m_vBasisY = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_vBasisZ, m_vBasisX));
 
 	OutputDebugString(std::to_wstring(m_fAspect).c_str());
 }
@@ -44,21 +43,28 @@ void Camera::Update(float fDeltaTime){
 	LONG DeltaMouseX = INPUT->GetDeltaMouseX();
 	LONG DeltaMouseY = INPUT->GetDeltaMouseY();
 
-	if (DeltaMouseX != 0 and DeltaMouseY != 0) {
+	if (DeltaMouseX != 0 or DeltaMouseY != 0) {
 		
-		DirectX::XMMATRIX XRotate =  DirectX::XMMatrixRotationAxis(m_vBasisX, Vector::Math::Radians(static_cast<float>(-DeltaMouseX)));
-		DirectX::XMMATRIX YRotate = DirectX::XMMatrixRotationAxis(m_vBasisY, Vector::Math::Radians(static_cast<float>(-DeltaMouseY)));
+		DirectX::XMMATRIX XRotate =  DirectX::XMMatrixRotationAxis(m_vBasisX, Vector::Math::Radians(static_cast<float>(-DeltaMouseY) * 0.5f));
+		DirectX::XMMATRIX YRotate = DirectX::XMMatrixRotationAxis(m_vBasisY, Vector::Math::Radians(static_cast<float>(-DeltaMouseX) * 0.5f));
 
 		m_vAt = DirectX::XMVector3Transform(m_vAt, XRotate);
 		m_vAt = DirectX::XMVector3Transform(m_vAt, YRotate);
 
-		
-
 		m_vBasisZ = DirectX::XMVector3Normalize(DirectX::XMVectorNegate(m_vAt));
-		m_vBasisX = DirectX::XMVector3Normalize(DirectX::XMVector3Dot(m_vUp, m_vBasisZ));
-		m_vBasisY = DirectX::XMVector3Normalize(DirectX::XMVector3Dot(m_vBasisZ, m_vBasisX));
+		m_vBasisX = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_vUp, m_vBasisZ));
+		m_vBasisY = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_vBasisZ, m_vBasisX));
 
 	}
 
-	
+	if (m_pMainWindowInfo->Resized) {
+		m_mProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(m_fPov), m_fAspect, m_fNearZ, m_fFarZ);
+	}
+
+	m_mView = DirectX::XMMatrixLookAtLH(m_vEye, DirectX::XMVectorAdd(m_vEye, m_vAt), m_vUp);
+	DirectX::XMStoreFloat4x4(&m_cameraData.ViewProjection, DirectX::XMMatrixTranspose(m_mView * m_mProjection));
+	//OutputDebugString(std::to_wstring(DeltaMouseX).c_str());
+	//OutputDebugString(L" ");
+	//OutputDebugString(std::to_wstring(DeltaMouseY).c_str());
+	//OutputDebugString(L"\n");
 }
