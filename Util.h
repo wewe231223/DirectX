@@ -66,4 +66,6 @@ void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList,const D3D
 
 namespace ApplicationUtil {
 	const WindowInfo* GetMainApplicationWindowInfo();
+	void ClipMouse(const WindowInfo* cpWindowInfo);
+	void FreeMouse();
 }

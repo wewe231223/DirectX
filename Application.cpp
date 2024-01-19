@@ -135,11 +135,14 @@ LRESULT DirectXApplication::Procedure(HWND hWnd, UINT message, WPARAM wParam, LP
         if (LOWORD(wParam) == WA_INACTIVE) {
             m_windowInfo.Paused = true;
             m_timer->Stop();
+            ApplicationUtil::FreeMouse();
+            m_windowInfo.MouseCliped = false;
         }
         else {
-        
             m_windowInfo.Paused = false;
             m_timer->Start();
+            ApplicationUtil::ClipMouse(&m_windowInfo);
+            m_windowInfo.MouseCliped = true;
         }
         break;
     case WM_SIZE:
@@ -462,7 +465,9 @@ bool DirectXApplication::Resize(){
 
     m_d3dSissorRect = D3D12_RECT{ 0,0,m_nClientWidth,m_nClientHeight };
 
-
+    if (m_windowInfo.MouseCliped) {
+        ApplicationUtil::ClipMouse(&m_windowInfo);
+    }
     return true;
 }
 

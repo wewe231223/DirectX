@@ -61,6 +61,7 @@ struct _tagVertex {
 using Vertex = _tagVertex;
 
 namespace ApplicationUtil {
+#define MOUSECLIPSTART 
 	struct _tagWindowInfo {
 		HWND hWnd{};
 		int Width{ FRAMEBUFFER_WIDTH };
@@ -70,6 +71,11 @@ namespace ApplicationUtil {
 		bool Resized{ false };
 		bool Minimized{ false };
 		bool Maximized{ false };
+#if defined(MOUSECLIPSTART)
+		bool MouseCliped{ true };
+#else 
+		bool MouseCliped{ false };
+#endif //!defined(MOUSECLIPSTART)
 	};
 
 	using WindowInfo = _tagWindowInfo;

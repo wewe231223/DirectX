@@ -140,4 +140,29 @@ namespace ApplicationUtil {
     const WindowInfo* GetMainApplicationWindowInfo(){
         return GetMainApplicationInfo();
     }
+    void ClipMouse(const WindowInfo* cpWindowInfo){
+        RECT ClientRect{};
+        ::GetClientRect(cpWindowInfo->hWnd, &ClientRect);
+        
+        POINT LeftTop, RightBottom;
+        LeftTop.x = ClientRect.left;
+        LeftTop.y = ClientRect.top;
+        RightBottom.x = ClientRect.right;
+        RightBottom.y = ClientRect.bottom;
+
+        ::ClientToScreen(cpWindowInfo->hWnd, &LeftTop);
+        ::ClientToScreen(cpWindowInfo->hWnd, &RightBottom);
+
+        ClientRect.left = LeftTop.x;
+        ClientRect.top = LeftTop.y;
+        ClientRect.right = RightBottom.x;
+        ClientRect.bottom = RightBottom.y;
+
+        ::ClipCursor(&ClientRect);
+    }
+
+    void FreeMouse(){
+        ::ClipCursor(NULL);
+    }
+
 }
