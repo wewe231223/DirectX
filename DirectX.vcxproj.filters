@@ -16,6 +16,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{313355b2-cc70-4985-b0ff-6e8a568b23f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{b3075d45-7d60-4da4-984f-f25fee8fec7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -53,6 +56,9 @@
     </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="External\DirectXTex.h">
+      <Filter>External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -104,5 +110,10 @@
     <FxCompile Include="Shader\DefaultShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="External\DirectXTex.inl">
+      <Filter>External</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -39,7 +39,7 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <dinput.h>
-
+#include "External/DirectXTex.h"
 
 // DirectX 라이브러리 링크 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -47,6 +47,11 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
+#if defined(DEBUG) | defined(_DEBUG)
+#pragma comment(lib, "DirectXTexD.lib")
+#else 
+#pragma comment(lib, "DirectXTexR.lib")
+#endif // !defined(DEBUG) | defined(_DEBUG)
 
 
 

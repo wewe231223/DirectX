@@ -61,10 +61,6 @@ void Camera::Update(float fDeltaTime){
 		m_vEye = DirectX::XMVectorAdd(m_vEye, DirectX::XMVectorScale(m_vBasisY, fDeltaTime * CameraSpeed));
 	}
 
-
-
-
-
 	LONG DeltaMouseX = INPUT->GetDeltaMouseX();
 	LONG DeltaMouseY = INPUT->GetDeltaMouseY();
 
