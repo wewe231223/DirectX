@@ -77,7 +77,7 @@ void Timer::SetFPSWindowTitle(HWND hWnd){
 	if (GetTimeElapsed() - m_fFpsTimeElapsed >= 1.f) {
 		float fps = (float)m_nFrameCount;
 
-		std::wstring FpsStr = std::to_wstring(fps);
+		std::tstring FpsStr = std::to_wstring(fps);
 
 		FpsStr = L"FPS : " + FpsStr;
 

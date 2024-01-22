@@ -487,7 +487,7 @@ void DirectXApplication::LogAdapters(){
     while (m_dxgiFactory->EnumAdapters(i, &Adapter) != DXGI_ERROR_NOT_FOUND) {
         DXGI_ADAPTER_DESC Desc{};
         Adapter->GetDesc(&Desc);
-        std::wstring Text{ L"***Adaptor***" };
+        std::tstring Text{ L"***Adaptor***" };
         Text += Desc.Description;
         Text += L"\n";
         OutputDebugString(Text.c_str());

@@ -85,7 +85,7 @@ ComPtr<ID3D12Resource> CreateDefaultBuffer(
 /// <param name="csTarget"> : Shader's Target( vs_5_0 ... )</param>
 /// <returns></returns>
 ComPtr<ID3DBlob> CompileShader(
-    const std::wstring& wcsFileName, 
+    const std::tstring& wcsFileName, 
     const D3D_SHADER_MACRO* d3dDefines, 
     const std::string& csEntryPoint, 
     const std::string& csTarget){
@@ -119,16 +119,16 @@ void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList,const D3D
     d3dCommandList->IASetPrimitiveTopology(d3dTopology);
 }
 
-Exeption::Exeption(HRESULT hErrorCode, const std::wstring& wcsFuctionName, const std::string& csFileName, const int nLineNumber):
+Exeption::Exeption(HRESULT hErrorCode, const std::tstring& wcsFuctionName, const std::string& csFileName, const int nLineNumber):
     m_hErrorCode(hErrorCode), m_wsFunctionName(wcsFuctionName), m_sFileName(csFileName), m_nLineNumber(nLineNumber){
 }
 
-std::wstring Exeption::ToString() const{
+std::tstring Exeption::ToString() const{
     _com_error err(m_hErrorCode);
-    std::wstring errmsg = err.ErrorMessage();
+    std::tstring errmsg = err.ErrorMessage();
     WCHAR buffer[512];
     ::MultiByteToWideChar(CP_ACP, 0, m_sFileName.c_str(), -1, buffer, 512);
-    std::wstring wsFileName{buffer};
+    std::tstring wsFileName{buffer};
 
 
     return m_wsFunctionName + L"\nFailed in : " + wsFileName + L"\nLine : " + std::to_wstring(m_nLineNumber) + L"\nError : " + errmsg;
@@ -183,3 +183,4 @@ namespace ApplicationUtil {
     }
 
 }
+

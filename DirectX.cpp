@@ -27,6 +27,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     catch (Exeption& e) {
         ::MessageBox(0, e.ToString().c_str(), 0, 0);
     }
+
+
+    const TCHAR* tc = _T("TEST");
+    
     return 0;
 }
 

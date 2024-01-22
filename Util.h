@@ -6,12 +6,12 @@ class Util{
 class Exeption {
 public:
 	Exeption() = default;
-	Exeption(HRESULT hErrorCode, const std::wstring& wcsFuctionName, const std::string& csFileName, const int nLineNumber);
+	Exeption(HRESULT hErrorCode, const std::tstring& wcsFuctionName, const std::string& csFileName, const int nLineNumber);
 
-	std::wstring ToString() const;
+	std::tstring ToString() const;
 
 	HRESULT m_hErrorCode{ S_OK };
-	std::wstring m_wsFunctionName{};
+	std::tstring m_wsFunctionName{};
 	std::string m_sFileName{};
 	int m_nLineNumber{};
 };
@@ -20,6 +20,20 @@ public:
 	if(FAILED(hr_)){ throw Exeption(hr_,L#hr,__FILE__,__LINE__);}	\
 																	\
 }
+
+class Path {
+public:
+	Path(std::tstring tsPath);
+private:
+	std::tstring m_tsPath{};
+public:
+	operator std::tstring();
+public:
+	std::tstring GetExtention() const;
+	const char* C_Str() const;
+};
+
+
 
 WNDCLASSEXW GetDefaultWindowProperties(HINSTANCE hInstance);
 #define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
@@ -59,7 +73,7 @@ constexpr DirectX::XMFLOAT4X4 Identity = {
 	0.f,0.f,0.f,1.f
 };
 
-ComPtr<ID3DBlob> CompileShader(const std::wstring& wcsFileName, const D3D_SHADER_MACRO* d3dDefines, const std::string& csEntryPoint, const std::string& csTarget);
+ComPtr<ID3DBlob> CompileShader(const std::tstring& wcsFileName, const D3D_SHADER_MACRO* d3dDefines, const std::string& csEntryPoint, const std::string& csTarget);
 D3D12_SHADER_BYTECODE GetShaderByteCode(ComPtr<ID3DBlob> d3dShaderBlob);
 
 void BindVertexBuffer(ComPtr<ID3D12GraphicsCommandList> d3dCommandList,const D3D12_VERTEX_BUFFER_VIEW& d3dVertexBuffer,const D3D12_INDEX_BUFFER_VIEW& d3dIndexBuffer, D3D_PRIMITIVE_TOPOLOGY d3dTopology);
@@ -70,3 +84,4 @@ namespace ApplicationUtil {
 	void FreeMouse();
 	void ShowCursor(bool bState);
 }
+

@@ -20,6 +20,7 @@
 #include <tchar.h>
 
 
+
 // C++ 런타임 헤더 파일입니다.
 #include <memory>
 #include <string>
@@ -84,6 +85,14 @@ namespace ApplicationUtil {
 	};
 
 	using WindowInfo = _tagWindowInfo;
+}
+
+namespace std {
+#ifdef _UNICODE
+	using tstring = wstring;
+#else 
+	using tstring = string;
+#endif // !_UNICODE
 }
  
 #include "resource.h"
