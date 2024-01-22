@@ -20,17 +20,18 @@ public:
 	if(FAILED(hr_)){ throw Exeption(hr_,L#hr,__FILE__,__LINE__);}	\
 																	\
 }
-
+#define EXTENTION_NOT_INCLUDE_DOT 
 class Path {
 public:
 	Path(std::tstring tsPath);
 private:
 	std::tstring m_tsPath{};
+	std::tstring m_tsExtention{};
 public:
 	operator std::tstring();
 public:
 	std::tstring GetExtention() const;
-	const char* C_Str() const;
+	const TCHAR* C_Str() const;
 };
 
 

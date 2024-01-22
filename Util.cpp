@@ -184,3 +184,26 @@ namespace ApplicationUtil {
 
 }
 
+Path::Path(std::tstring tsPath) : m_tsPath(tsPath){
+    size_t DotIndex = tsPath.find(_T('.'));
+    if (DotIndex == std::tstring::npos) {
+        throw Exeption(S_FALSE, _T("Path Failed! : ") + tsPath, __FILE__, __LINE__);
+    }
+#ifdef EXTENTION_NOT_INCLUDE_DOT
+    m_tsExtention = std::tstring(m_tsPath.substr(DotIndex+1));
+#else 
+    m_tsExtention = std::tstring(m_tsPath.substr(DotIndex));
+#endif // !EXTENTION_NOT_INCLUDE_DOT
+}
+
+Path::operator std::tstring(){
+    return m_tsPath;
+}
+
+std::tstring Path::GetExtention() const {
+    return m_tsExtention;
+}
+
+const TCHAR* Path::C_Str() const {
+    return m_tsPath.c_str();
+}
