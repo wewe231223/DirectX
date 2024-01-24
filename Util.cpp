@@ -76,6 +76,61 @@ ComPtr<ID3D12Resource> CreateDefaultBuffer(
 
     return DefaultBuffer;
 }
+
+
+ComPtr<ID3D12Resource> CreateDefaultBuffer(
+    ID3D12Device* d3dDevice, 
+    ID3D12GraphicsCommandList* d3dCommandList, 
+    std::vector<D3D12_SUBRESOURCE_DATA>& Data, 
+    UINT64 nByteSize, 
+    ComPtr<ID3D12Resource>& d3dpUploadBuffer){
+
+    ComPtr<ID3D12Resource> DefaultBuffer{ nullptr };
+
+    CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+    CD3DX12_RESOURCE_DESC BufferDesc = CD3DX12_RESOURCE_DESC::Buffer(nByteSize);
+    ThrowIfFailed(d3dDevice->CreateCommittedResource(
+        &HeapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &BufferDesc,
+        D3D12_RESOURCE_STATE_COMMON,
+        nullptr,
+        IID_PPV_ARGS(DefaultBuffer.GetAddressOf())
+    ));
+
+
+    HeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+
+    ThrowIfFailed(d3dDevice->CreateCommittedResource(
+        &HeapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &BufferDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(d3dpUploadBuffer.GetAddressOf())
+    ));
+
+
+
+    CD3DX12_RESOURCE_BARRIER ResourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        DefaultBuffer.Get(),
+        D3D12_RESOURCE_STATE_COMMON,
+        D3D12_RESOURCE_STATE_COPY_DEST
+    );
+
+    d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
+
+    UpdateSubresources(d3dCommandList, DefaultBuffer.Get(), d3dpUploadBuffer.Get(), 0, 0,static_cast<UINT>(Data.size()), Data.data());
+    ResourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        DefaultBuffer.Get(),
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_RESOURCE_STATE_GENERIC_READ
+    );
+
+    d3dCommandList->ResourceBarrier(1, &ResourceBarrier);
+
+    return DefaultBuffer;
+}
 /// <summary>
 /// Shader Compile 
 /// </summary>

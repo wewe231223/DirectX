@@ -60,6 +60,9 @@
     <ClInclude Include="External\DirectXTex.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -90,6 +93,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Math.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

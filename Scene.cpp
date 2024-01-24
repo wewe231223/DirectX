@@ -2,7 +2,7 @@
 #include "Scene.h"
 #include "Mesh.h"
 #include "Camera.h"
-
+#include "Texture.h"
 
 Scene::Scene(){
 	
@@ -27,6 +27,9 @@ void Scene::Initialize(ComPtr<ID3D12Device> d3dDevice, ComPtr<ID3D12GraphicsComm
 
 	m_camera = std::make_unique<Camera>(m_windowInfo,DirectX::XMVECTOR{ 10.f,10.f,10.f }, DirectX::XMVECTOR{ 1.f,1.f,1.f });
 	m_camera->InitBuffer(d3dDevice, 0);
+
+	Texture Tex(m_d3dDevice, m_d3dCommandList, Path(_T("Textures/stone.dds")));
+
 }
 
 // NumofDescriptor 에 총 Resource View 의 개수를 넣어줘야 한다 

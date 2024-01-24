@@ -67,6 +67,13 @@ ComPtr<ID3D12Resource> CreateDefaultBuffer(
 	UINT64 nByteSize, 
 	ComPtr<ID3D12Resource>& d3dpUploadBuffer);
 
+ComPtr<ID3D12Resource> CreateDefaultBuffer(
+	ID3D12Device* d3dDevice,
+	ID3D12GraphicsCommandList* d3dCommandList,
+	std::vector<D3D12_SUBRESOURCE_DATA>& Data,
+	UINT64 nByteSize,
+	ComPtr<ID3D12Resource>& d3dpUploadBuffer);
+
 constexpr DirectX::XMFLOAT4X4 Identity = {
 	1.f,0.f,0.f,0.f,
 	0.f,1.f,0.f,0.f,
